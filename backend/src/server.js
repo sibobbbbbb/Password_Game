@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const rules = require('./rules/rules.js');
+
 const app = express();
 const port = 5000;
 
@@ -8,11 +10,20 @@ app.use(express.json());
 
 app.post('/api/check', (req, res) => {
   const { text } = req.body;
-  if (text.length >= 7) {
-    res.json({ result: 'Password length is valid', isCorrect: true });
-  } else {
-    res.json({ result: 'Password length is too short', isCorrect: false });
+  let nextRuleIndex = 0;
+
+  for (let i = 0; i < rules.length; i++) {
+    if (rules[i].check(text)) {
+      nextRuleIndex = i + 1;
+    } else {
+      break;
+    }
   }
+  
+  res.json({
+    rules: rules.slice(0, nextRuleIndex + 1),
+    failedRule: nextRuleIndex < rules.length ? rules[nextRuleIndex] : null
+  });
 });
 
 app.listen(port, () => {

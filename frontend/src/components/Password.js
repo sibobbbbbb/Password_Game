@@ -4,8 +4,8 @@ import Button from "./Button";
 
 const Password = () => {
   const [text, setText] = useState("");
-  const [responseMessage, setResponseMessage] = useState("");
-  const [isCorrect, setIsCorrect] = useState(null);
+  const [rules, setRules] = useState([]);
+  const [failedRule, setFailedRule] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -18,8 +18,8 @@ const Password = () => {
         body: JSON.stringify({ text }),
       });
       const data = await response.json();
-      setResponseMessage(data.result);
-      setIsCorrect(data.isCorrect);
+      setRules(data.rules);
+      setFailedRule(data.failedRule);
     } catch (error) {
       console.error("Error:", error);
     }
@@ -36,9 +36,23 @@ const Password = () => {
       <div className="pt-8 text-center">
         <Button onClick={handleSubmit}>Submit</Button>
       </div>
-      {responseMessage && (
-        <div className={`mt-4 text-2xl text-center ${isCorrect ? 'text-green-500' : 'text-red-500'}`}>
-          {responseMessage}
+      <div className="mt-4 w-full max-w-md">
+        {rules.map((rule, index) => (
+          <div
+            key={rule.id}
+            className={`mt-2 p-2 rounded text-lg ${
+              failedRule && failedRule.id === rule.id
+                ? "bg-red-100 text-red-500"
+                : "bg-green-100 text-green-500"
+            }`}
+          >
+            {`Rule ${rule.id}: ${rule.description}`}
+          </div>
+        ))}
+      </div>
+      {failedRule && (
+        <div className="mt-4 text-2xl text-red-500">
+          {`Failed Rule: ${failedRule.description}`}
         </div>
       )}
     </div>
