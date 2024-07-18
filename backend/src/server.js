@@ -1,6 +1,6 @@
-const express = require('express');
-const cors = require('cors');
-const rules = require('./rules/rules.js');
+const express = require("express");
+const cors = require("cors");
+const rules = require("./rules/rules.js");
 
 const app = express();
 const port = 5000;
@@ -8,21 +8,35 @@ const port = 5000;
 app.use(cors());
 app.use(express.json());
 
-app.post('/api/check', (req, res) => {
-  const { text } = req.body;
-  let nextRuleIndex = 0;
-
+app.post("/api/check", (req, res) => {
+  const { text, countRevealedRules } = req.body;
+  let countRevealedRulesBe = countRevealedRules;
+  let results = [];
   for (let i = 0; i < rules.length; i++) {
-    if (rules[i].check(text)) {
-      nextRuleIndex = i + 1;
-    } else {
-      break;
+    const isValid = rules[i].check(text);
+    results.push({
+      id: rules[i].id,
+      description: rules[i].description,
+      isValid: isValid,
+    });
+    if (countRevealedRulesBe === rules[i].id) {
+      if (!results.every((result) => result.isValid)) {
+        break;
+      }
+    } else if (countRevealedRulesBe < rules[i].id) {
+      countRevealedRulesBe++;
+      if (!isValid) {
+        break;
+      }
     }
   }
-  
+
+  console.log(countRevealedRulesBe);
+  console.log(results);
+
   res.json({
-    rules: rules.slice(0, nextRuleIndex + 1),
-    failedRule: nextRuleIndex < rules.length ? rules[nextRuleIndex] : null
+    results: results,
+    countRevealedRules: countRevealedRulesBe,
   });
 });
 
