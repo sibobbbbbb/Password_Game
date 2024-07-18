@@ -16,5 +16,5 @@ fs.readdirSync(rulesDir).forEach(file => {
         }
     }
 });
-  
+rules.sort((a, b) => a.id - b.id);
 module.exports = rules;

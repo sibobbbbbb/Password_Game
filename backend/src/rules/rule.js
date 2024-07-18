@@ -1,4 +1,4 @@
-class rule {
+class Rule {
     constructor(id, description,func) {
         this.id = id;
         this.description = description;
@@ -11,4 +11,4 @@ class rule {
     }
 }
 
-module.exports = rule;
+module.exports = Rule;
