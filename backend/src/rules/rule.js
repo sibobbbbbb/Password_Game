@@ -5,9 +5,9 @@ class Rule {
         this.func = func;
     }
     
-    check(text)
+    check(text,images)
     {
-        return (this.func(text));
+        return (this.func(text,images));
     }
 }
 

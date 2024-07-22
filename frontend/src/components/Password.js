@@ -1,22 +1,31 @@
 import React, { useState, useEffect } from "react";
 import TextBox from "./TextBox";
-import Button from "./Button";
 import useBurningEffect from "./rule10/BurnEffect";
 
 const Password = () => {
+  // password
   const [text, setText] = useState("");
+
+  // rules logic
   const [rules, setRules] = useState([]);
   const [revealedRules, setRevealedRules] = useState([]);
   const [countRevealedRules, setCountRevealedRules] = useState(0);
+
+  // rule 8
+  const [flagImages, setFlagImages] = useState([]);
+  const [countries, setCountries] = useState([]);
+
+  // rule 10
+  // const [isFirstBurn, setIsFirstBurn] = useState(true);
   const [isBurning, setIsBurning] = useState(false);
-  
   useBurningEffect(text, setText, isBurning, setIsBurning);
+
   useEffect(() => {
     if (text.trim().length > 0) {
       checkRules(text);
     }
   }, [text]);
-  
+
   const checkRules = async (textToCheck) => {
     try {
       const response = await fetch("http://localhost:5000/api/check", {
@@ -24,7 +33,11 @@ const Password = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: textToCheck, countRevealedRules }),
+        body: JSON.stringify({
+          text: textToCheck,
+          countRevealedRules,
+          countries,
+        }),
       });
       const { results, countRevealedRules: newCount } = await response.json();
       setCountRevealedRules(newCount);
@@ -33,26 +46,55 @@ const Password = () => {
       setRevealedRules((prevRevealedRules) => [
         ...new Set([...prevRevealedRules, ...newRevealedRules]),
       ]);
-
       const rule10 = results.find((rule) => rule.id === 10);
       if (rule10 && rule10.isValid) {
         setIsBurning(true);
       } else {
         setIsBurning(false);
       }
+
+      const rule8 = results.find((rule) => rule.id === 8);
+      if (rule8 && flagImages.length === 0) {
+        const flagDataResponse = await fetch(
+          "http://localhost:5000/api/flags/random"
+        );
+        if (flagDataResponse.ok) {
+          const flags = await flagDataResponse.json();
+          const countries = flags.map((flag) => flag.country);
+          setCountries(countries);
+
+          const flagImagePromises = flags.map((flag) =>
+            fetch(flag.imageUrl)
+              .then((res) => res.blob())
+              .then((blob) => URL.createObjectURL(blob))
+          );
+          const imageUrls = await Promise.all(flagImagePromises);
+          setFlagImages(imageUrls);
+
+          return () => imageUrls.forEach((url) => URL.revokeObjectURL(url));
+        } else {
+          console.error(
+            "Failed to fetch the flag data:",
+            flagDataResponse.statusText
+          );
+        }
+      }
     } catch (error) {
       console.error("Error:", error);
     }
   };
-
 
   return (
     <div className="bg-[#022B42] min-h-screen flex flex-col items-center justify-center">
       <h1 className="py-14 text-6xl font-bold text-white text-center">
         Welcome to Password Game
       </h1>
-      <div className="px-40">
-        <TextBox value={text} onChange={(e)=>setText(e.target.value) } />
+      <div className="px-40 w-full max-w-5xl">
+        <TextBox
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          className="w-full"
+        />
       </div>
       {revealedRules.map((id) => {
         const rule = rules.find((r) => r.id === id);
@@ -67,6 +109,23 @@ const Password = () => {
           </div>
         );
       })}
+      {flagImages.length > 0 && (
+        <div className="mt-4 p-4 border border-gray-300 rounded-md bg-white">
+          <div className="grid grid-cols-3 gap-4">
+            {flagImages.map((image, index) => (
+              <div key={index} className="text-center">
+                <img
+                  src={image}
+                  alt={`Flag ${index + 1}`}
+                  className="w-full h-auto object-contain"
+                  style={{ maxHeight: "150px" }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="pt-10"></div>
     </div>
   );
 };

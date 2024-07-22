@@ -1,13 +1,13 @@
 const Rule = require('./rule');
 
-const rule_8 = new Rule(8, "Rule 8 - Your password must include one of this country", (text) => {
-    const countries = ["USA", "Canada", "UK", "Australia", "Germany"]; //misal ini dulu
-    for (const country of countries) {
-        if (text.includes(country)) {
-            return true;
-        }
+const rule_8 = new Rule(8, "Rule 8 - Your password must include one of this country", (text,countries) => {
+    console.log(countries);
+    if(countries.length === 0){
+        return false;
     }
-    return false;
+    const pattern = countries.map(str => `(${str})`).join('|');
+    const regex = new RegExp(pattern, 'i');
+    return regex.test(text);
 });
 
 module.exports = rule_8;
