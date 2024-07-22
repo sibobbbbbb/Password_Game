@@ -9,7 +9,7 @@ function isStringAllFireEmoji(text) {
 function updateStringWithFireEmoji(text) {
   const characters = Array.from(text);
   for (let i = characters.length - 1; i >= 0; i--) {
-    if (characters[i] !== "🔥" && characters[i].match(/[a-zA-Z0-9]/)) {
+    if (characters[i] !== "🔥") {
       characters[i] = "🔥";
       break;
     }
@@ -18,39 +18,35 @@ function updateStringWithFireEmoji(text) {
   return result;
 }
 
-
 const useBurningEffect = (text, setText, isBurning, setIsBurning) => {
   useEffect(() => {
-    let burnInterval;
 
     if (isBurning) {
-      burnInterval = setInterval(() => {
+      let burnInterval = setInterval(() => {
+        if (isBurning && isStringAllFireEmoji(text)) {
+          console.log("all burn")
+          setIsBurning(false);
+          clearInterval(burnInterval);
+          setTimeout(() => {
+            setIsBurning(true);
+            console.log("burn start")
+          }, Math.floor(Math.random() * (60000 - 50000 + 1)) + 50000);
+        }
+        
+        if (isBurning && text.indexOf("🔥") === -1) {
+          console.log("burn stop")
+          setIsBurning(false);
+          clearInterval(burnInterval);
+          setTimeout(() => {
+            console.log("burn start")
+            setIsBurning(true);
+          }, Math.floor(Math.random() * (60000 - 50000 + 1)) + 50000);
+        }
         setText((prevText) => updateStringWithFireEmoji(prevText));
       }, 1000);
     }
 
-    return () => clearInterval(burnInterval);
   }, [isBurning, setText]);
-  
-  useEffect(() => {
-    if (isBurning && isStringAllFireEmoji(text)) {
-      console.log("all burn")
-      setIsBurning(false);
-      setTimeout(() => {
-        setIsBurning(true);
-      }, Math.floor(Math.random() * (30000 - 20000)) + 20000);
-    }
-  }, [text, setIsBurning]);
-  
-  useEffect(() => {
-    if (isBurning && text.indexOf("🔥") === -1) {
-      console.log("burn stop")
-      setIsBurning(false);
-      setTimeout(() => {
-        setIsBurning(true);
-      }, Math.floor(Math.random() * (30000 - 20000)) + 20000);
-    }
-  }, [text, setIsBurning]);
 };
 
 
