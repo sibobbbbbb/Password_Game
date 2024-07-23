@@ -4,18 +4,18 @@ const Flag = require('../models/Flag');
 
 router.get('/random', async (req, res) => {
   try {
-    const count = await Flag.count();
-    
-    const randomIndexes = Array.from({ length: 3 }, () => Math.floor(Math.random() * count));
-    const randomFlags = await Promise.all(randomIndexes.map(index => Flag.findOne({ offset: index })));
-
-    const flags = randomFlags.map(flag => ({
+    const flags = await Flag.findAll({
+      attributes: ['id', 'country'],
+    });
+    const shuffledFlags = flags.sort(() => 0.5 - Math.random());
+    const selectedFlags = shuffledFlags.slice(0, 3);
+    const responseFlags = selectedFlags.map(flag => ({
       id: flag.id,
       country: flag.country,
       imageUrl: `http://localhost:5000/api/flags/image/${flag.id}`,
     }));
 
-    res.json(flags);
+    res.json(responseFlags);
   } catch (error) {
     console.error('Error fetching random flags:', error);
     res.status(500).send('Internal Server Error');
