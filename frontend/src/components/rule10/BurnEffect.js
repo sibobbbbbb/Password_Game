@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 export function isStringAllFireEmoji(text) {
   const characters = Array.from(text);
   const allFireEmoji = characters.every(char => char === "🔥");

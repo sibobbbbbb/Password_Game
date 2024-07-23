@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import TextBox from "./TextBox";
-import {isStringAllFireEmoji, updateStringWithFireEmoji} from "./rule10/BurnEffect";
+import {
+  isStringAllFireEmoji,
+  updateStringWithFireEmoji,
+} from "./rule10/BurnEffect";
 
 const Password = () => {
   // password
@@ -15,11 +18,15 @@ const Password = () => {
   const [flagImages, setFlagImages] = useState([]);
   const [countries, setCountries] = useState([]);
 
+  // rule 12
+  const [captchaImage, setCaptchaImage] = useState(null);
+  const [answer, setAnswer] = useState("");
+
   // rule 10
   const [isAlreadyRule10, setIsAlreadyRule10] = useState(false);
   const [isBurning, setIsBurning] = useState(false);
-  const [isFirstBurn,setIsFirstBurn] = useState(false);
-  const [burnInterval,setBurnInterval] = useState(null);
+  const [isFirstBurn, setIsFirstBurn] = useState(false);
+  const [burnInterval, setBurnInterval] = useState(null);
 
   // interval burning untuk rule 10
   useEffect(() => {
@@ -28,7 +35,7 @@ const Password = () => {
       const interval = setInterval(() => {
         console.log("ini dari interval");
         setText((prevText) => updateStringWithFireEmoji(prevText));
-        if(!isFirstBurn) {
+        if (!isFirstBurn) {
           console.log("ini dari interval first burn");
           setIsFirstBurn(true);
         }
@@ -39,7 +46,7 @@ const Password = () => {
       clearInterval(burnInterval);
       setBurnInterval(null);
     }
-    
+
     return () => {
       if (burnInterval) {
         console.log("ini buat clear interval nya dari return");
@@ -67,12 +74,38 @@ const Password = () => {
     }
   }, [isBurning, text, isFirstBurn]);
 
+  // refresh button captcha on click
+  const refreshCaptcha = async () => {
+    try {
+      const captchaDataResponse = await fetch("http://localhost:5000/api/captchas/random");
+      if (captchaDataResponse.ok) {
+        const captchas = await captchaDataResponse.json();
+        setAnswer(captchas.answer);
+  
+        const captchaImagePromise = fetch(captchas.imageUrl)
+          .then((res) => res.blob())
+          .then((blob) => URL.createObjectURL(blob));
+  
+        const imageUrl = await captchaImagePromise;
+        setCaptchaImage(imageUrl);
+  
+        // Revoke old URL
+        return () => URL.revokeObjectURL(imageUrl);
+      } else {
+        console.error("Failed to fetch the captcha data:", captchaDataResponse.statusText);
+      }
+    } catch (error) {
+      console.error("Error refreshing captcha:", error);
+    }
+  };
+  
+
   // start the game
   useEffect(() => {
     if (text.trim().length > 0) {
       checkRules(text);
     }
-  }, [text]);
+  }, [text, refreshCaptcha]);
 
   // check password pemain
   const checkRules = async (textToCheck) => {
@@ -86,6 +119,7 @@ const Password = () => {
           text: textToCheck,
           countRevealedRules,
           countries,
+          answer,
         }),
       });
       const { results, countRevealedRules: newCount } = await response.json();
@@ -124,6 +158,31 @@ const Password = () => {
           console.error(
             "Failed to fetch the flag data:",
             flagDataResponse.statusText
+          );
+        }
+      }
+
+      const rule12 = results.find((rule) => rule.id === 12);
+      if (rule12 && captchaImage === null) {
+        const captchaDataResponse = await fetch(
+          "http://localhost:5000/api/captchas/random"
+        );
+        if (captchaDataResponse.ok) {
+          const captchas = await captchaDataResponse.json();
+          setAnswer(captchas.answer);
+
+          const captchaImagePromise = fetch(captchas.imageUrl)
+            .then((res) => res.blob())
+            .then((blob) => URL.createObjectURL(blob));
+
+          const imageUrls = await captchaImagePromise;
+          setCaptchaImage(imageUrls);
+
+          return () => URL.revokeObjectURL(imageUrls);
+        } else {
+          console.error(
+            "Failed to fetch the flag data:",
+            captchaDataResponse.statusText
           );
         }
       }
@@ -171,6 +230,22 @@ const Password = () => {
               </div>
             ))}
           </div>
+        </div>
+      )}
+      {captchaImage && (
+        <div className="mt-4 p-4 border border-gray-300 rounded-md bg-white relative">
+          <img
+            src={captchaImage}
+            alt="Captcha"
+            className="w-full h-auto object-contain"
+            style={{ maxHeight: "150px" }}
+          />
+          <button
+            onClick={refreshCaptcha}
+            className="absolute top-2 right-2 bg-blue-500 text-white py-1 px-3 rounded"
+          >
+            Refresh
+          </button>
         </div>
       )}
       <div className="pt-10"></div>

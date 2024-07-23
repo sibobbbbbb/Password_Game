@@ -11,8 +11,8 @@ router.get('/random', async (req, res) => {
     if (randomCaptcha) {
       const captcha = {
         id: randomCaptcha.id,
-        country: randomCaptcha.country,
-        imageUrl: `http://localhost:5000/api/captcha/image/${randomCaptcha.id}`,
+        answer: randomCaptcha.answer,
+        imageUrl: `http://localhost:5000/api/captchas/image/${randomCaptcha.id}`,
       };
       res.json(captcha);
     } else {
