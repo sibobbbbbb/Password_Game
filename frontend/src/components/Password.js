@@ -76,27 +76,8 @@ const Password = () => {
 
   // refresh button captcha on click
   const refreshCaptcha = async () => {
-    try {
-      const captchaDataResponse = await fetch("http://localhost:5000/api/captchas/random");
-      if (captchaDataResponse.ok) {
-        const captchas = await captchaDataResponse.json();
-        setAnswer(captchas.answer);
-  
-        const captchaImagePromise = fetch(captchas.imageUrl)
-          .then((res) => res.blob())
-          .then((blob) => URL.createObjectURL(blob));
-  
-        const imageUrl = await captchaImagePromise;
-        setCaptchaImage(imageUrl);
-  
-        // Revoke old URL
-        return () => URL.revokeObjectURL(imageUrl);
-      } else {
-        console.error("Failed to fetch the captcha data:", captchaDataResponse.statusText);
-      }
-    } catch (error) {
-      console.error("Error refreshing captcha:", error);
-    }
+    setCaptchaImage(null);
+    setAnswer("");
   };
   
 
@@ -105,7 +86,7 @@ const Password = () => {
     if (text.trim().length > 0) {
       checkRules(text);
     }
-  }, [text, refreshCaptcha]);
+  }, [text, captchaImage]);
 
   // check password pemain
   const checkRules = async (textToCheck) => {
