@@ -22,6 +22,9 @@ const Password = () => {
   const [captchaImage, setCaptchaImage] = useState(null);
   const [answer, setAnswer] = useState("");
 
+  // rule 11 
+  const [isAlreadyRule11, setIsAlreadyRule11] = useState(false);
+
   // rule 10
   const [isAlreadyRule10, setIsAlreadyRule10] = useState(false);
   const [isBurning, setIsBurning] = useState(false);
@@ -110,12 +113,8 @@ const Password = () => {
       setRevealedRules((prevRevealedRules) => [
         ...new Set([...prevRevealedRules, ...newRevealedRules]),
       ]);
-      const rule10 = results.find((rule) => rule.id === 10);
-      if (rule10 && rule10.isValid && !isAlreadyRule10) {
-        setIsAlreadyRule10(true);
-        setIsBurning(true);
-      }
 
+      // rule 8 logic
       const rule8 = results.find((rule) => rule.id === 8);
       if (rule8 && flagImages.length === 0) {
         const flagDataResponse = await fetch(
@@ -125,25 +124,45 @@ const Password = () => {
           const flags = await flagDataResponse.json();
           const countries = flags.map((flag) => flag.country);
           setCountries(countries);
-
+          
           const flagImagePromises = flags.map((flag) =>
             fetch(flag.imageUrl)
-              .then((res) => res.blob())
-              .then((blob) => URL.createObjectURL(blob))
-          );
-          const imageUrls = await Promise.all(flagImagePromises);
-          setFlagImages(imageUrls);
-
-          return () => imageUrls.forEach((url) => URL.revokeObjectURL(url));
-        } else {
-          console.error(
-            "Failed to fetch the flag data:",
-            flagDataResponse.statusText
-          );
-        }
+          .then((res) => res.blob())
+          .then((blob) => URL.createObjectURL(blob))
+        );
+        const imageUrls = await Promise.all(flagImagePromises);
+        setFlagImages(imageUrls);
+        
+        return () => imageUrls.forEach((url) => URL.revokeObjectURL(url));
+      } else {
+        console.error(
+          "Failed to fetch the flag data:",
+          flagDataResponse.statusText
+        );
       }
+    }
 
-      const rule12 = results.find((rule) => rule.id === 12);
+    // rule 10 logic
+    // const rule10 = results.find((rule) => rule.id === 10);
+    // if (rule10 && rule10.isValid && !isAlreadyRule10) {
+    //   setIsAlreadyRule10(true);
+    //   setIsBurning(true);
+    // }
+    
+    // paul logic (rule 11 && rule 14)
+    const rule11 = results.find((rule) => rule.id === 11);
+    if (rule11 && rule11.isValid && !isAlreadyRule11) {
+      setText((prevText) => prevText + "🥚");
+      setIsAlreadyRule11(true); 
+    }
+
+    const rule14 = results.find((rule) => rule.id === 14);
+    if (rule14 && rule14.isValid) {
+      setText((prevText) => prevText.replace(/🥚/g, "🐔"));
+    };
+
+    // rule 12 logic
+    const rule12 = results.find((rule) => rule.id === 12);
       if (rule12 && captchaImage === null) {
         const captchaDataResponse = await fetch(
           "http://localhost:5000/api/captchas/random"
