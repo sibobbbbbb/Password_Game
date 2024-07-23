@@ -3,7 +3,7 @@ const path = require('path');
 const sequelize = require('../config/database');
 const Flag = require('../models/Flag');
 
-async function loadImagesToDatabase() {
+async function loadFlagImagesToDatabase() {
   await sequelize.sync({ force: true });
 
   const flagsDir = path.join(__dirname, '../images/flags');
@@ -17,4 +17,4 @@ async function loadImagesToDatabase() {
   }
 }
 
-module.exports = loadImagesToDatabase;
+module.exports = loadFlagImagesToDatabase;

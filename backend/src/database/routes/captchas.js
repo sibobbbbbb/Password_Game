@@ -1,0 +1,43 @@
+const express = require('express');
+const router = express.Router();
+const Captcha = require('../models/Captcha');
+
+router.get('/random', async (req, res) => {
+  try {
+    const count = await Captcha.count();
+    const randomIndex = Math.floor(Math.random() * count);
+    const randomCaptcha = await Captcha.findOne({ offset: randomIndex });
+
+    if (randomCaptcha) {
+      const captcha = {
+        id: randomCaptcha.id,
+        country: randomCaptcha.country,
+        imageUrl: `http://localhost:5000/api/captcha/image/${randomCaptcha.id}`,
+      };
+      res.json(captcha);
+    } else {
+      res.status(404).send('No captcha found');
+    }
+  } catch (error) {
+    console.error('Error fetching random captcha:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Endpoint untuk mengirimkan gambar sebagai blob
+router.get('/image/:id', async (req, res) => {
+  try {
+    const captcha = await Captcha.findByPk(req.params.id);
+    if (captcha) {
+      res.setHeader('Content-Type', 'image/jpeg');
+      res.send(captcha.image);
+    } else {
+      res.status(404).send('Image not found');
+    }
+  } catch (error) {
+    console.error('Error fetching image:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+module.exports = router;
