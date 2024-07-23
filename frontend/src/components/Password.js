@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import TextBox from "./TextBox";
-import useBurningEffect from "./rule10/BurnEffect";
+import {isStringAllFireEmoji, updateStringWithFireEmoji} from "./rule10/BurnEffect";
 
 const Password = () => {
   // password
@@ -16,16 +16,65 @@ const Password = () => {
   const [countries, setCountries] = useState([]);
 
   // rule 10
-  // const [isFirstBurn, setIsFirstBurn] = useState(true);
+  const [isAlreadyRule10, setIsAlreadyRule10] = useState(false);
   const [isBurning, setIsBurning] = useState(false);
-  useBurningEffect(text, setText, isBurning, setIsBurning);
+  const [isFirstBurn,setIsFirstBurn] = useState(false);
+  const [burnInterval,setBurnInterval] = useState(null);
 
+  // interval burning untuk rule 10
+  useEffect(() => {
+    if (isBurning && burnInterval == null) {
+      console.log("ini buat interval nya");
+      const interval = setInterval(() => {
+        console.log("ini dari interval");
+        setText((prevText) => updateStringWithFireEmoji(prevText));
+        if(!isFirstBurn) {
+          console.log("ini dari interval first burn");
+          setIsFirstBurn(true);
+        }
+      }, 1000);
+      setBurnInterval(interval);
+    } else if (burnInterval) {
+      console.log("ini buat clear interval nya");
+      clearInterval(burnInterval);
+      setBurnInterval(null);
+    }
+    
+    return () => {
+      if (burnInterval) {
+        console.log("ini buat clear interval nya dari return");
+        clearInterval(burnInterval);
+      }
+    };
+  }, [isBurning, setText]);
+
+  // check apakah interval nya harus stop
+  useEffect(() => {
+    if (isBurning && isStringAllFireEmoji(text)) {
+      setIsBurning(false);
+      setIsFirstBurn(false);
+      console.log("all burn");
+      setTimeout(() => {
+        setIsBurning(true);
+      }, Math.floor(Math.random() * (60000 - 50000 + 1)) + 50000);
+    } else if (isBurning && text.indexOf("🔥") === -1 && isFirstBurn) {
+      setIsBurning(false);
+      setIsFirstBurn(false);
+      console.log("stop burn");
+      setTimeout(() => {
+        setIsBurning(true);
+      }, Math.floor(Math.random() * (60000 - 50000 + 1)) + 50000);
+    }
+  }, [isBurning, text, isFirstBurn]);
+
+  // start the game
   useEffect(() => {
     if (text.trim().length > 0) {
       checkRules(text);
     }
   }, [text]);
 
+  // check password pemain
   const checkRules = async (textToCheck) => {
     try {
       const response = await fetch("http://localhost:5000/api/check", {
@@ -47,10 +96,9 @@ const Password = () => {
         ...new Set([...prevRevealedRules, ...newRevealedRules]),
       ]);
       const rule10 = results.find((rule) => rule.id === 10);
-      if (rule10 && rule10.isValid) {
+      if (rule10 && rule10.isValid && !isAlreadyRule10) {
+        setIsAlreadyRule10(true);
         setIsBurning(true);
-      } else {
-        setIsBurning(false);
       }
 
       const rule8 = results.find((rule) => rule.id === 8);
