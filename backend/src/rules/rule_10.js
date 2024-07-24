@@ -1,4 +1,10 @@
-const Rule = require('./rule');
+const Rule = require("./rule");
 
-const rule_10 = new Rule(10, 'Rule 10 - Oh no! Your password is on fire 🔥. Quick, put it out!', (text) => {return true} );
+const rule_10 = new Rule(
+  10,
+  "Rule 10 - Oh no! Your password is on fire 🔥. Quick, put it out!",
+  (text, isAlreadyRule10) => {
+    return isAlreadyRule10;
+  }
+);
 module.exports = rule_10;
