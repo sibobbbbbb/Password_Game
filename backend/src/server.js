@@ -1,34 +1,41 @@
 const express = require("express");
 const cors = require("cors");
 const rules = require("./rules/rules.js");
-const flagRoutes = require('./database/routes/flags.js');
-const captchaRoutes = require('./database/routes/captchas.js');
+const flagRoutes = require("./database/routes/flags.js");
+const captchaRoutes = require("./database/routes/captchas.js");
 
 const app = express();
 const port = 5000;
 
 app.use(cors());
 app.use(express.json());
-app.use('/api/flags', flagRoutes);
-app.use('/api/captchas', captchaRoutes);
+app.use("/api/flags", flagRoutes);
+app.use("/api/captchas", captchaRoutes);
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the image upload service!');
+app.get("/", (req, res) => {
+  res.send("Welcome to the image upload service!");
 });
 
 app.post("/api/check", (req, res) => {
-  const { text, countRevealedRules,countries , answer} = req.body;
+  const { text, countRevealedRules, countries, isAlreadyRule10, answer } = req.body;
   let countRevealedRulesBe = countRevealedRules;
   let results = [];
   let cek = null;
   for (let i = 0; i < rules.length; i++) {
-    if(rules[i].id === 8){
+    if (rules[i].id === 8) {
       cek = countries;
-    }
-    else if(rules[i].id === 12){
+    } else if (rules[i].id === 10) {
+      cek = isAlreadyRule10;
+      console.log("isAlreadyRule10nya :",isAlreadyRule10)
+    } else if (rules[i].id === 12) {
       cek = answer;
     }
-    const isValid = ((rules[i].id === 8 && countries != []) || (rules[i].id === 12 && countries != ""))? rules[i].check(text,cek) : rules[i].check(text);
+    const isValid =
+      (rules[i].id === 8 && countries != []) ||
+      (rules[i].id === 10 && countries != false) ||
+      (rules[i].id === 12 && countries != "") 
+        ? rules[i].check(text, cek)
+        : rules[i].check(text);
     results.push({
       id: rules[i].id,
       description: rules[i].description,
@@ -45,6 +52,14 @@ app.post("/api/check", (req, res) => {
       }
     }
   }
+
+  // results.push(
+  //   {
+  //     id: 13,
+  //     description: rules[12].description,
+  //     isValid: rules[12].check(text),
+  //   }
+  // )
 
   console.log(countRevealedRulesBe);
   console.log(results);

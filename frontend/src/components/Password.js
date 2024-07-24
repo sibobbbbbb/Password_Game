@@ -103,6 +103,7 @@ const Password = () => {
           text: textToCheck,
           countRevealedRules,
           countries,
+          isAlreadyRule10,
           answer,
         }),
       });
@@ -143,11 +144,11 @@ const Password = () => {
     }
 
     // rule 10 logic
-    // const rule10 = results.find((rule) => rule.id === 10);
-    // if (rule10 && rule10.isValid && !isAlreadyRule10) {
-    //   setIsAlreadyRule10(true);
-    //   setIsBurning(true);
-    // }
+    const rule10 = results.find((rule) => rule.id === 10);
+    if (rule10 && !isAlreadyRule10) {
+      setIsAlreadyRule10(true);
+      setIsBurning(true);
+    }
     
     // paul logic (rule 11 && rule 14)
     const rule11 = results.find((rule) => rule.id === 11);
