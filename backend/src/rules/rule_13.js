@@ -7,13 +7,16 @@ const rule_13 = new Rule(13, 'Rule 13 - Your password must include a leap year',
     return true;
   };
 
-  const extractFourDigitNumbers = (text) => {
-    const regex = /\d{4}/g;
+  const extractNumbers = (text) => {
+    const regex = /\d+/g;
     return text.match(regex) || [];
   };
 
-  const fourDigitNumbers = extractFourDigitNumbers(text);
-  return fourDigitNumbers.some(number => isLeapYear(parseInt(number, 10)));
+  const numbers = extractNumbers(text);
+  return numbers.some(number => {
+    const year = parseInt(number, 10);
+    return isLeapYear(year);
+  });
 });
 
 module.exports = rule_13;
