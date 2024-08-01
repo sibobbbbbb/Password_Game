@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import TextBox from "./TextBox";
 import {
   isStringAllFireEmoji,
   updateStringWithFireEmoji,
 } from "./rule10/BurnEffect";
+import checkWorms from "./rule14/ClearWorm";
 
 const Password = () => {
   // password
   const [text, setText] = useState("");
+
+  // GameState
+  const [gameOver, setGameOver] = useState(false);
 
   // rules logic
   const [rules, setRules] = useState([]);
@@ -22,7 +26,7 @@ const Password = () => {
   const [captchaImage, setCaptchaImage] = useState(null);
   const [answer, setAnswer] = useState("");
 
-  // rule 11 
+  // rule 11
   const [isAlreadyRule11, setIsAlreadyRule11] = useState(false);
 
   // rule 10
@@ -30,6 +34,11 @@ const Password = () => {
   const [isBurning, setIsBurning] = useState(false);
   const [isFirstBurn, setIsFirstBurn] = useState(false);
   const [burnInterval, setBurnInterval] = useState(null);
+
+  const textRef = useRef(text);
+  useEffect(() => {
+    textRef.current = text;
+  }, [text]);
 
   // interval burning untuk rule 10
   useEffect(() => {
@@ -82,12 +91,36 @@ const Password = () => {
     setCaptchaImage(null);
     setAnswer("");
   };
+
+  // rule 14
+  const [isAlreadyRule14, setIsAlreadyRule14] = useState(false);
+  const wormInterval = useRef(null);
+
+  useEffect(() => {
+    if (isAlreadyRule14 && wormInterval.current === null) {
+      const X = 10; // 10 seconds
+      const Y = 5; // 5 worms
+      wormInterval.current = setInterval(() => {
+        checkWorms(textRef.current, setGameOver, setText, Y);
+      }, X * 1000);
+    }
   
+    return () => {
+      if (wormInterval.current) {
+        clearInterval(wormInterval.current);
+        wormInterval.current = null;
+      }
+    };
+  }, [isAlreadyRule14]);
 
   // start the game
   useEffect(() => {
     if (text.trim().length > 0) {
-      checkRules(text);
+      if (!gameOver) {
+        checkRules(text);
+      } else {
+        console.log("GameOVER");
+      }
     }
   }, [text, captchaImage]);
 
@@ -125,45 +158,48 @@ const Password = () => {
           const flags = await flagDataResponse.json();
           const countries = flags.map((flag) => flag.country);
           setCountries(countries);
-          
+
           const flagImagePromises = flags.map((flag) =>
             fetch(flag.imageUrl)
-          .then((res) => res.blob())
-          .then((blob) => URL.createObjectURL(blob))
-        );
-        const imageUrls = await Promise.all(flagImagePromises);
-        setFlagImages(imageUrls);
-        
-        return () => imageUrls.forEach((url) => URL.revokeObjectURL(url));
-      } else {
-        console.error(
-          "Failed to fetch the flag data:",
-          flagDataResponse.statusText
-        );
+              .then((res) => res.blob())
+              .then((blob) => URL.createObjectURL(blob))
+          );
+          const imageUrls = await Promise.all(flagImagePromises);
+          setFlagImages(imageUrls);
+
+          return () => imageUrls.forEach((url) => URL.revokeObjectURL(url));
+        } else {
+          console.error(
+            "Failed to fetch the flag data:",
+            flagDataResponse.statusText
+          );
+        }
       }
-    }
 
-    // rule 10 logic
-    const rule10 = results.find((rule) => rule.id === 10);
-    if (rule10 && !isAlreadyRule10) {
-      setIsAlreadyRule10(true);
-      setIsBurning(true);
-    }
-    
-    // paul logic (rule 11 && rule 14)
-    const rule11 = results.find((rule) => rule.id === 11);
-    if (rule11 && rule11.isValid && !isAlreadyRule11) {
-      setText((prevText) => prevText + "🥚");
-      setIsAlreadyRule11(true); 
-    }
+      // rule 10 logic
+      const rule10 = results.find((rule) => rule.id === 10);
+      if (rule10 && !isAlreadyRule10) {
+        setIsAlreadyRule10(true);
+        setIsBurning(true);
+      }
 
-    const rule14 = results.find((rule) => rule.id === 14);
-    if (rule14 && rule14.isValid) {
-      setText((prevText) => prevText.replace(/🥚/g, "🐔"));
-    };
+      // paul logic (rule 11 && rule 14)
+      const rule11 = results.find((rule) => rule.id === 11);
+      if (rule11 && rule11.isValid && !isAlreadyRule11) {
+        setText((prevText) => prevText + "🥚");
+        setIsAlreadyRule11(true);
+      }
 
-    // rule 12 logic
-    const rule12 = results.find((rule) => rule.id === 12);
+      const rule14 = results.find((rule) => rule.id === 14);
+      if (rule14 && rule14.isValid && !isAlreadyRule14) {
+        setText((prevText) => prevText.replace(/🥚/g, "🐔"));
+        setTimeout(() => {
+          setIsAlreadyRule14(true);
+        }, 10000); // misal 10 detik
+      }
+
+      // rule 12 logic
+      const rule12 = results.find((rule) => rule.id === 12);
       if (rule12 && captchaImage === null) {
         const captchaDataResponse = await fetch(
           "http://localhost:5000/api/captchas/random"
