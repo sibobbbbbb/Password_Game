@@ -1,38 +1,45 @@
-const Rule = require('./rule');
-
-const rule_9 = new Rule(9, "Rule 9 - The Roman numerals in your password should multiply to X", (text) => {
+const Rule = require("./rule");
+// BELOM SELESE
+const rule_9 = new Rule(
+  9,
+  "Rule 9 - The Roman numerals in your password should multiply to X",
+  (text) => {
     const romanNumerals = ["I", "V", "X", "L", "C", "D", "M"];
     let result = 1;
     for (const romanNumeral of romanNumerals) {
-        const regex = new RegExp(romanNumeral, "g");
-        const count = (text.match(regex) || []).length;
-        if (count > 0) {
-            switch (romanNumeral) {
-                case "I":
-                    result *= count;
-                    break;
-                case "V":
-                    result *= count * 5;
-                    break;
-                case "X":
-                    result *= count * 10;
-                    break;
-                case "L":
-                    result *= count * 50;
-                    break;
-                case "C":
-                    result *= count * 100;
-                    break;
-                case "D":
-                    result *= count * 500;
-                    break;
-                case "M":
-                    result *= count * 1000;
-                    break;
-            }
+      const regex = new RegExp(romanNumeral, "g");
+      const count = (text.match(regex) || []).length;
+      console.log("roman : ", romanNumeral);
+      console.log("count : ", count);
+      if (count > 0) {
+        switch (romanNumeral) {
+          case "I":
+            result *= Math.pow(1, count); // 1^count
+            break;
+          case "V":
+            result *= Math.pow(5, count); // 5^count
+            break;
+          case "X":
+            result *= Math.pow(10, count); // 10^count
+            break;
+          case "L":
+            result *= Math.pow(50, count); // 50^count
+            break;
+          case "C":
+            result *= Math.pow(100, count); // 100^count
+            break;
+          case "D":
+            result *= Math.pow(500, count); // 500^count
+            break;
+          case "M":
+            result *= Math.pow(1000, count); // 1000^count
+            break;
         }
+      }
     }
+    console.log(result);
     return result === 100; // misal 100
-});
+  }
+);
 
 module.exports = rule_9;
