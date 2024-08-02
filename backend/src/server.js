@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
 });
 
 app.post("/api/check", (req, res) => {
-  const { text, countRevealedRules, countries, isAlreadyRule10, answer } = req.body;
+  const { text, countRevealedRules, countries, isAlreadyRule10, answer,sacrificedLetters } = req.body;
   let countRevealedRulesBe = countRevealedRules;
   let results = [];
   let cek = null;
@@ -26,14 +26,16 @@ app.post("/api/check", (req, res) => {
       cek = countries;
     } else if (rules[i].id === 10) {
       cek = isAlreadyRule10;
-      console.log("isAlreadyRule10nya :",isAlreadyRule10)
     } else if (rules[i].id === 12) {
       cek = answer;
-    }
+    } else if (rules[i].id === 15) {
+      cek = sacrificedLetters;
+    } 
     const isValid =
       (rules[i].id === 8 && countries != []) ||
-      (rules[i].id === 10 && countries != false) ||
-      (rules[i].id === 12 && countries != "") 
+      (rules[i].id === 10) ||
+      (rules[i].id === 12) ||
+      (rules[i].id === 15)
         ? rules[i].check(text, cek)
         : rules[i].check(text);
     results.push({
@@ -52,17 +54,18 @@ app.post("/api/check", (req, res) => {
       }
     }
   }
-
+  
+  // console.log("sacrificedLetters: ",sacrificedLetters);
   // results.push(
   //   {
-  //     id: 13,
-  //     description: rules[12].description,
-  //     isValid: rules[12].check(text),
+  //     id: 15,
+  //     description: rules[14].description,
+  //     isValid: rules[14].check(text,sacrificedLetters),
   //   }
   // )
 
-  console.log(countRevealedRulesBe);
-  console.log(results);
+  console.log("countRevealedRulesBe : ",countRevealedRulesBe);
+  console.log("results", results);
 
   res.json({
     results: results,

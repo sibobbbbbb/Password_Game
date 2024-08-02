@@ -5,6 +5,7 @@ import {
   updateStringWithFireEmoji,
 } from "./rule10/BurnEffect";
 import checkWorms from "./rule14/ClearWorm";
+import LetterPicker from "./rule15/LetterPicker";
 
 const Password = () => {
   // password
@@ -104,7 +105,7 @@ const Password = () => {
         checkWorms(textRef.current, setGameOver, setText, Y);
       }, X * 1000);
     }
-  
+
     return () => {
       if (wormInterval.current) {
         clearInterval(wormInterval.current);
@@ -112,6 +113,22 @@ const Password = () => {
       }
     };
   }, [isAlreadyRule14]);
+
+  // rule 15
+  const [sacrificedLetters, setSacrificedLetters] = useState([]);
+  const [showLetterPicker, setShowLetterPicker] = useState(false);
+  
+  const handleSacrificedLetters = (letters) => {
+    setSacrificedLetters(letters);
+  };
+
+  const openLetterPicker = () => {
+    setShowLetterPicker(true);
+  };
+
+  const closeLetterPicker = () => {
+    setShowLetterPicker(false);
+  };
 
   // start the game
   useEffect(() => {
@@ -133,11 +150,12 @@ const Password = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          text: textToCheck,
-          countRevealedRules,
-          countries,
-          isAlreadyRule10,
-          answer,
+          text: textToCheck, // text
+          countRevealedRules, // rules yang sudah terbuka
+          countries, // rule 8
+          isAlreadyRule10, // rule 10
+          answer, // rule 12
+          sacrificedLetters, // rule 15
         }),
       });
       const { results, countRevealedRules: newCount } = await response.json();
@@ -223,6 +241,14 @@ const Password = () => {
           );
         }
       }
+
+      // rule 15 logic
+      if (sacrificedLetters.length === 0) {
+        const rule15 = results.find((rule) => rule.id === 15);
+        if (rule15) {
+          openLetterPicker();
+        }
+      }
     } catch (error) {
       console.error("Error:", error);
     }
@@ -230,9 +256,12 @@ const Password = () => {
 
   return (
     <div className="bg-[#022B42] min-h-screen flex flex-col items-center justify-center">
-      <h1 className="py-14 text-6xl font-bold text-white text-center">
+      <h1 className="py-5 text-6xl font-bold text-white text-center">
         Welcome to Password Game
       </h1>
+      <div className="text-white text-xl mb-4">
+        Password length: {text.length}
+      </div>
       <div className="px-40 w-full max-w-5xl">
         <TextBox
           value={text}
@@ -284,6 +313,13 @@ const Password = () => {
             Refresh
           </button>
         </div>
+      )}
+      {showLetterPicker && (
+        <LetterPicker
+          onSelect={handleSacrificedLetters}
+          maxLetters={3}
+          onClose={closeLetterPicker}
+        />
       )}
       <div className="pt-10"></div>
     </div>
