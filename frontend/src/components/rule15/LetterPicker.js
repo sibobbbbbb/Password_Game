@@ -34,13 +34,7 @@ const LetterPicker = ({ onSelect, maxLetters = 3, onClose }) => {
             </button>
           ))}
         </div>
-        <div className="flex justify-between items-center">
-          <button
-            onClick={onClose}
-            className="bg-gray-500 text-white py-2 px-4 rounded"
-          >
-            Cancel
-          </button>
+        <div className="items-center">
           <button
             onClick={handleSubmit}
             disabled={selectedLetters.length < maxLetters}
