@@ -7,7 +7,9 @@ const rule_20 = new Rule(
     const currentTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
     console.log(currentTime);
     return text.includes(currentTime);
-  }
+  }, // ex : 10:30
+  null,
 );
+
 
 module.exports = rule_20;

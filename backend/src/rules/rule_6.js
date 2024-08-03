@@ -1,7 +1,14 @@
-const Rule = require('./rule');
+const Rule = require("./rule");
 
-const rule_6 = new Rule(6, "Rule 6 - Your password must include a month of the year" , (text) => {
-    return /(?:january|february|march|april|may|june|july|august|september|october|november|december)/i.test(text);
-});
+const rule_6 = new Rule(
+  6,
+  "Rule 6 - Your password must include a month of the year",
+  (text) => {
+    return /(?:january|february|march|april|may|june|july|august|september|october|november|december)/i.test(
+      text
+    );
+  },
+  null
+);
 
 module.exports = rule_6;

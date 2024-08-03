@@ -21,7 +21,8 @@ app.post("/api/check", (req, res) => {
   let countRevealedRulesBe = countRevealedRules;
   let results = [];
   let cek = null;
-  for (let i = 0; i < rules.length; i++) {
+  let tempDiff = 'easy';
+  for (let i = 14; i < rules.length; i++) {
     if (rules[i].id === 8) {
       cek = countries;
     } else if (rules[i].id === 10) {
@@ -30,17 +31,13 @@ app.post("/api/check", (req, res) => {
       cek = answer;
     } else if (rules[i].id === 15) {
       cek = sacrificedLetters;
-    } 
-    const isValid =
-      (rules[i].id === 8 && countries != []) ||
-      (rules[i].id === 10) ||
-      (rules[i].id === 12) ||
-      (rules[i].id === 15)
-        ? rules[i].check(text, cek)
-        : rules[i].check(text);
+    } else {
+      cek = null;
+    }
+    const isValid = rules[i].check(text, cek, tempDiff); ;
     results.push({
       id: rules[i].id,
-      description: rules[i].description,
+      description: rules[i].getDesc(tempDiff),
       isValid: isValid,
     });
     if (countRevealedRulesBe === rules[i].id) {
@@ -55,12 +52,11 @@ app.post("/api/check", (req, res) => {
     }
   }
   
-  // console.log("sacrificedLetters: ",sacrificedLetters);
   // results.push(
   //   {
-  //     id: 15,
-  //     description: rules[14].description,
-  //     isValid: rules[14].check(text,sacrificedLetters),
+  //     id: 1,
+  //     description: rules[0].getDesc('easy'),
+  //     isValid: rules[0].check(text,null,'easy'),
   //   }
   // )
 

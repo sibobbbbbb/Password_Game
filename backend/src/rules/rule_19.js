@@ -18,7 +18,8 @@ const rule_19 = new Rule(
   (text) => {
     const length = text.length;
     return isPrime(length);
-  }
+  },
+  null
 );
 
 module.exports = rule_19;

@@ -3,7 +3,7 @@ const Rule = require("./rule");
 const rule_9 = new Rule(
   9,
   "Rule 9 - The Roman numerals in your password should multiply to X",
-  (text) => {
+  (text,_,{X}) => {
     const romanNumerals = ["I", "V", "X", "L", "C", "D", "M"];
     let result = 1;
     for (const romanNumeral of romanNumerals) {
@@ -14,31 +14,36 @@ const rule_9 = new Rule(
       if (count > 0) {
         switch (romanNumeral) {
           case "I":
-            result *= Math.pow(1, count); // 1^count
+            result *= Math.pow(1, count);
             break;
           case "V":
-            result *= Math.pow(5, count); // 5^count
+            result *= Math.pow(5, count);
             break;
           case "X":
-            result *= Math.pow(10, count); // 10^count
+            result *= Math.pow(10, count);
             break;
           case "L":
-            result *= Math.pow(50, count); // 50^count
+            result *= Math.pow(50, count); 
             break;
           case "C":
-            result *= Math.pow(100, count); // 100^count
+            result *= Math.pow(100, count); 
             break;
           case "D":
-            result *= Math.pow(500, count); // 500^count
+            result *= Math.pow(500, count);
             break;
           case "M":
-            result *= Math.pow(1000, count); // 1000^count
+            result *= Math.pow(1000, count);
             break;
         }
       }
     }
     console.log(result);
-    return result === 100; // misal 100
+    return result === X;
+  },
+  {
+    easy: { X: 10 },
+    medium: { X: 50 },
+    hard: { X: 100 },
   }
 );
 

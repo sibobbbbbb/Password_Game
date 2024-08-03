@@ -5,6 +5,7 @@ const rule_10 = new Rule(
   "Rule 10 - Oh no! Your password is on fire 🔥. Quick, put it out!",
   (text, isAlreadyRule10) => {
     return isAlreadyRule10;
-  }
+  },
+  null,
 );
 module.exports = rule_10;

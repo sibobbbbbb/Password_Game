@@ -6,7 +6,8 @@ const rule_16 = new Rule(
   (text) => {
     const regex = /(I want IRK|I need IRK|I love IRK)/;
     return regex.test(text);
-  }
+  },
+  null
 );
 
 module.exports = rule_16;

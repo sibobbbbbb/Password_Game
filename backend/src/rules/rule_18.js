@@ -6,6 +6,7 @@ const rule_18 = new Rule(
   (text) => {
     const length = text.length.toString();
     return text.includes(length);
-  }
+  },
+  null,
 );
 module.exports = rule_18;
