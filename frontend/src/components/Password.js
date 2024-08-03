@@ -6,6 +6,7 @@ import {
 } from "./rule10/BurnEffect";
 import checkWorms from "./rule14/ClearWorm";
 import LetterPicker from "./rule15/LetterPicker";
+import calculateScore from "./score/CalculateScore";
 
 const Password = () => {
   // password
@@ -18,6 +19,20 @@ const Password = () => {
   const [rules, setRules] = useState([]);
   const [revealedRules, setRevealedRules] = useState([]);
   const [countRevealedRules, setCountRevealedRules] = useState(0);
+
+  // Calculate points
+  const [score, setScore] = useState(0);
+  const [startTime] = useState(Date.now());
+
+  useEffect(() => {
+    if (!gameOver && revealedRules.length > 0) {
+      calculateScore(revealedRules, difficultyLevel, startTime,text ,setScore);
+    }
+  }, [revealedRules, gameOver, text]);
+
+  // Difficulty level
+  const [difficultyLevel, setDifficultyLevel] = useState("easy"); // atau 'medium', 'hard'
+
 
   // rule 8
   const [flagImages, setFlagImages] = useState([]);
@@ -117,7 +132,7 @@ const Password = () => {
   // rule 15
   const [sacrificedLetters, setSacrificedLetters] = useState([]);
   const [showLetterPicker, setShowLetterPicker] = useState(false);
-  
+
   const handleSacrificedLetters = (letters) => {
     setSacrificedLetters(letters);
   };
@@ -262,6 +277,7 @@ const Password = () => {
       <div className="text-white text-xl mb-4">
         Password length: {text.length}
       </div>
+      {/* <div className="text-white text-xl mb-4">Score: {score}</div> */}
       <div className="px-40 w-full max-w-5xl">
         <TextBox
           value={text}
