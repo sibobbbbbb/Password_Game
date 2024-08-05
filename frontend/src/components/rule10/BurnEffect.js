@@ -1,6 +1,6 @@
 export function isStringAllFireEmoji(text) {
   const characters = Array.from(text);
-  const allFireEmoji = characters.every(char => char === "🔥");
+  const allFireEmoji = characters.every((char) => char === "🔥");
   return allFireEmoji;
 }
 
@@ -12,6 +12,12 @@ export function updateStringWithFireEmoji(text) {
       break;
     }
   }
-  const result = characters.join('');
+  const result = characters.join("");
   return result;
 }
+
+export const intervalBurnByDifficulty = {
+  easy: { X: 60000 },
+  medium: {X: 40000},
+  hard: {X: 25000},
+};

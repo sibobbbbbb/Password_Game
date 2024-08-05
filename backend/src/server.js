@@ -17,12 +17,20 @@ app.get("/", (req, res) => {
 });
 
 app.post("/api/check", (req, res) => {
-  const { text, countRevealedRules, countries, isAlreadyRule10, answer,sacrificedLetters } = req.body;
+  const {
+    text,
+    difficulty,
+    countRevealedRules,
+    countries,
+    isAlreadyRule10,
+    answer,
+    sacrificedLetters,
+  } = req.body;
+  console.log(difficulty);
   let countRevealedRulesBe = countRevealedRules;
   let results = [];
   let cek = null;
-  let tempDiff = 'easy';
-  for (let i = 14; i < rules.length; i++) {
+  for (let i = 0; i < rules.length; i++) {
     if (rules[i].id === 8) {
       cek = countries;
     } else if (rules[i].id === 10) {
@@ -34,10 +42,10 @@ app.post("/api/check", (req, res) => {
     } else {
       cek = null;
     }
-    const isValid = rules[i].check(text, cek, tempDiff); ;
+    const isValid = rules[i].check(text, cek, difficulty);
     results.push({
       id: rules[i].id,
-      description: rules[i].getDesc(tempDiff),
+      description: rules[i].getDesc(difficulty),
       isValid: isValid,
     });
     if (countRevealedRulesBe === rules[i].id) {
@@ -51,16 +59,26 @@ app.post("/api/check", (req, res) => {
       }
     }
   }
-  
-  // results.push(
-  //   {
-  //     id: 1,
-  //     description: rules[0].getDesc('easy'),
-  //     isValid: rules[0].check(text,null,'easy'),
-  //   }
-  // )
 
-  console.log("countRevealedRulesBe : ",countRevealedRulesBe);
+  // results.push({
+  //   id: 10,
+  //   description: rules[9].getDesc(difficulty),
+  //   isValid: rules[9].check(text, isAlreadyRule10, difficulty),
+  // });
+  // console.log("results", results);
+  // results.push({
+  //   id: 14,
+  //   description: rules[13].getDesc(difficulty),
+  //   isValid: rules[13].check(text, null, difficulty),
+  // });
+  // console.log("results", results);
+  // results.push({
+  //   id: 15,
+  //   description: rules[14].getDesc(difficulty),
+  //   isValid: rules[14].check(text, sacrificedLetters, difficulty),
+  // });
+
+  console.log("countRevealedRulesBe : ", countRevealedRulesBe);
   console.log("results", results);
 
   res.json({

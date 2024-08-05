@@ -19,14 +19,22 @@ class Rule {
   }
 
   getDesc(difficulty) {
+    let temp = this.description;
     if (difficulty != "" && this.difficultyLevels != null) {
-      this.description = changeDesc(
-        this.description,
+      if (this.difficultyLevels[difficulty].Y) {
+        temp = changeDesc(
+          temp,
+          "Y",
+          this.difficultyLevels[difficulty].Y.toString()
+        );
+      }
+      temp = changeDesc(
+        temp,
         "X",
         this.difficultyLevels[difficulty].X.toString()
       );
     }
-    return this.description;
+    return temp;
   }
 }
 

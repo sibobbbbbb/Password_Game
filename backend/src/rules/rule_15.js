@@ -8,11 +8,10 @@ const rule_15 = new Rule(
     if (sacrificedLetters.length == 0) {
       return false;
     }
-
     const regexPattern = new RegExp(`[${sacrificedLetters.join("")}]`);
     return !regexPattern.test(text);
   },
-  null, // di frontend
+  { easy: { X: 1 }, medium: { X: 3 }, hard: { X: 5 } }
 );
 
 module.exports = rule_15;

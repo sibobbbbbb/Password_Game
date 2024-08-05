@@ -6,6 +6,10 @@ const rule_10 = new Rule(
   (text, isAlreadyRule10) => {
     return isAlreadyRule10;
   },
-  null,
+  {
+    easy: { X: 60000 },
+    medium: {X: 40000},
+    hard: {X: 25000},
+  }
 );
 module.exports = rule_10;

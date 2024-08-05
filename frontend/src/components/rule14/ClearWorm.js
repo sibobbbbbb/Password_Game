@@ -14,18 +14,19 @@ function clearWorm(str, n) {
   return result;
 }
 
-const checkWorms = (text, setGameOver, setText, Y) => {
+export const checkWorms = (text, setGameOver, setText, X) => {
   const wormCount = (text.match(/🐛/g) || []).length;
-  console.log(wormCount);
-  console.log(text);
-
-  if (wormCount < Y) {
+ 
+  if (wormCount < X) {
     setGameOver(true);
   } else {
-    const clearedText = clearWorm(text, Y);
+    const clearedText = clearWorm(text, X);
     setText(clearedText);
   }
 };
 
-
-export default checkWorms;
+export const feedPaulByDifficulty = {
+  easy: {X: 2, Y: 20000 },
+  medium: { X: 4, Y: 15000 },
+  hard: { X: 5, Y: 12000 },
+};

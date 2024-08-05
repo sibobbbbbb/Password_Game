@@ -3,16 +3,22 @@ import TextBox from "./TextBox";
 import {
   isStringAllFireEmoji,
   updateStringWithFireEmoji,
+  intervalBurnByDifficulty,
 } from "./rule10/BurnEffect";
-import checkWorms from "./rule14/ClearWorm";
-import LetterPicker from "./rule15/LetterPicker";
+import { checkWorms, feedPaulByDifficulty } from "./rule14/ClearWorm";
+import {
+  LetterPicker,
+  nSacredLettersByDifficulty,
+} from "./rule15/LetterPicker";
 import calculateScore from "./score/CalculateScore";
+import StartScreen from "./StartScreen";
 
 const Password = () => {
   // password
   const [text, setText] = useState("");
 
   // GameState
+  const [showStartScreen, setShowStartScreen] = useState(true);
   const [gameOver, setGameOver] = useState(false);
 
   // rules logic
@@ -26,13 +32,12 @@ const Password = () => {
 
   useEffect(() => {
     if (!gameOver && revealedRules.length > 0) {
-      calculateScore(revealedRules, difficultyLevel, startTime,text ,setScore);
+      calculateScore(revealedRules, difficultyLevel, startTime, text, setScore);
     }
   }, [revealedRules, gameOver, text]);
 
   // Difficulty level
-  const [difficultyLevel, setDifficultyLevel] = useState("easy"); // atau 'medium', 'hard'
-
+  const [difficultyLevel, setDifficultyLevel] = useState("");
 
   // rule 8
   const [flagImages, setFlagImages] = useState([]);
@@ -91,14 +96,14 @@ const Password = () => {
       console.log("all burn");
       setTimeout(() => {
         setIsBurning(true);
-      }, Math.floor(Math.random() * (60000 - 50000 + 1)) + 50000);
+      }, intervalBurnByDifficulty[difficultyLevel].X);
     } else if (isBurning && text.indexOf("🔥") === -1 && isFirstBurn) {
       setIsBurning(false);
       setIsFirstBurn(false);
       console.log("stop burn");
       setTimeout(() => {
         setIsBurning(true);
-      }, Math.floor(Math.random() * (60000 - 50000 + 1)) + 50000);
+      }, intervalBurnByDifficulty[difficultyLevel].X);
     }
   }, [isBurning, text, isFirstBurn]);
 
@@ -114,11 +119,14 @@ const Password = () => {
 
   useEffect(() => {
     if (isAlreadyRule14 && wormInterval.current === null) {
-      const X = 10; // 10 seconds
-      const Y = 5; // 5 worms
       wormInterval.current = setInterval(() => {
-        checkWorms(textRef.current, setGameOver, setText, Y);
-      }, X * 1000);
+        checkWorms(
+          textRef.current,
+          setGameOver,
+          setText,
+          feedPaulByDifficulty[difficultyLevel].X
+        );
+      }, feedPaulByDifficulty[difficultyLevel].Y);
     }
 
     return () => {
@@ -166,6 +174,7 @@ const Password = () => {
         },
         body: JSON.stringify({
           text: textToCheck, // text
+          difficulty: difficultyLevel, // difficulty
           countRevealedRules, // rules yang sudah terbuka
           countries, // rule 8
           isAlreadyRule10, // rule 10
@@ -228,7 +237,7 @@ const Password = () => {
         setText((prevText) => prevText.replace(/🥚/g, "🐔"));
         setTimeout(() => {
           setIsAlreadyRule14(true);
-        }, 10000); // misal 10 detik
+        }, feedPaulByDifficulty[difficultyLevel].Y );
       }
 
       // rule 12 logic
@@ -271,73 +280,84 @@ const Password = () => {
 
   return (
     <div className="bg-[#022B42] min-h-screen flex flex-col items-center justify-center">
-      <h1 className="py-5 text-6xl font-bold text-white text-center">
-        Welcome to Password Game
-      </h1>
-      <div className="text-white text-xl mb-4">
-        Password length: {text.length}
-      </div>
-      {/* <div className="text-white text-xl mb-4">Score: {score}</div> */}
-      <div className="px-40 w-full max-w-5xl">
-        <TextBox
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="w-full"
+      {showStartScreen ? (
+        <StartScreen
+          onStart={(selectedDifficulty) => {
+            setDifficultyLevel(selectedDifficulty);
+            setShowStartScreen(false);
+          }}
         />
-      </div>
-      {revealedRules.map((id) => {
-        const rule = rules.find((r) => r.id === id);
-        return (
-          <div
-            key={rule.id}
-            className={`mt-4 text-2xl ${
-              rule.isValid ? "text-green-500" : "text-red-500"
-            }`}
-          >
-            {rule.description}
+      ) : (
+        <>
+          <h1 className="py-5 text-6xl font-bold text-white text-center">
+            Welcome to Password Game
+          </h1>
+          <div className="text-white text-xl mb-4">
+            Password length: {text.length}
           </div>
-        );
-      })}
-      {flagImages.length > 0 && (
-        <div className="mt-4 p-4 border border-gray-300 rounded-md bg-white">
-          <div className="grid grid-cols-3 gap-4">
-            {flagImages.map((image, index) => (
-              <div key={index} className="text-center">
-                <img
-                  src={image}
-                  alt={`Flag ${index + 1}`}
-                  className="w-full h-auto object-contain"
-                  style={{ maxHeight: "150px" }}
-                />
+          {/* <div className="text-white text-xl mb-4">Score: {score}</div> */}
+          <div className="px-40 w-full max-w-5xl">
+            <TextBox
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              className="w-full"
+            />
+          </div>
+          {revealedRules.map((id) => {
+            const rule = rules.find((r) => r.id === id);
+            return (
+              <div
+                key={rule.id}
+                className={`mt-4 text-2xl ${
+                  rule.isValid ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {rule.description}
               </div>
-            ))}
-          </div>
-        </div>
+            );
+          })}
+          {flagImages.length > 0 && (
+            <div className="mt-4 p-4 border border-gray-300 rounded-md bg-white">
+              <div className="grid grid-cols-3 gap-4">
+                {flagImages.map((image, index) => (
+                  <div key={index} className="text-center">
+                    <img
+                      src={image}
+                      alt={`Flag ${index + 1}`}
+                      className="w-full h-auto object-contain"
+                      style={{ maxHeight: "150px" }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {captchaImage && (
+            <div className="mt-4 p-4 border border-gray-300 rounded-md bg-white relative">
+              <img
+                src={captchaImage}
+                alt="Captcha"
+                className="w-full h-auto object-contain"
+                style={{ maxHeight: "150px" }}
+              />
+              <button
+                onClick={refreshCaptcha}
+                className="absolute top-2 right-2 bg-blue-500 text-white py-1 px-3 rounded"
+              >
+                Refresh
+              </button>
+            </div>
+          )}
+          {showLetterPicker && (
+            <LetterPicker
+              onSelect={handleSacrificedLetters}
+              maxLetters={nSacredLettersByDifficulty[difficultyLevel].X}
+              onClose={closeLetterPicker}
+            />
+          )}
+          <div className="pt-10"></div>
+        </>
       )}
-      {captchaImage && (
-        <div className="mt-4 p-4 border border-gray-300 rounded-md bg-white relative">
-          <img
-            src={captchaImage}
-            alt="Captcha"
-            className="w-full h-auto object-contain"
-            style={{ maxHeight: "150px" }}
-          />
-          <button
-            onClick={refreshCaptcha}
-            className="absolute top-2 right-2 bg-blue-500 text-white py-1 px-3 rounded"
-          >
-            Refresh
-          </button>
-        </div>
-      )}
-      {showLetterPicker && (
-        <LetterPicker
-          onSelect={handleSacrificedLetters}
-          maxLetters={3}
-          onClose={closeLetterPicker}
-        />
-      )}
-      <div className="pt-10"></div>
     </div>
   );
 };

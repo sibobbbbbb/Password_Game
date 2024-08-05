@@ -6,7 +6,11 @@ const rule_14 = new Rule(
   () => {
     return true;
   },
-  null, // di frontend 
+  {
+    easy: { X: 2, Y: 20 },
+    medium: { X: 4, Y: 15 },
+    hard: { X: 5, Y: 12 },
+  }
 );
 
 module.exports = rule_14;
