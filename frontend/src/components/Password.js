@@ -3,6 +3,7 @@ import TextBox from "./TextBox";
 import {
   isStringAllFireEmoji,
   updateStringWithFireEmoji,
+  deleteAllFireEmoji,
   intervalBurnByDifficulty,
 } from "./rule10/BurnEffect";
 import { checkWorms, feedPaulByDifficulty } from "./rule14/ClearWorm";
@@ -12,10 +13,17 @@ import {
 } from "./rule15/LetterPicker";
 import calculateScore from "./score/CalculateScore";
 import StartScreen from "./StartScreen";
+import { highlightInvalidCharacters } from "./Highlighter";
+
+const isContainCheat = (text) => {
+  const regex = /cheat/i;
+  return regex.test(text);
+};
 
 const Password = () => {
   // password
   const [text, setText] = useState("");
+  const [highlightedText, setHighlightedText] = useState("");
 
   // GameState
   const [showStartScreen, setShowStartScreen] = useState(true);
@@ -39,6 +47,13 @@ const Password = () => {
   // Difficulty level
   const [difficultyLevel, setDifficultyLevel] = useState("");
 
+  // highlighter
+  const [invalidNumberRule, setInvalidNumberRule] = useState(false);
+  const [invalidRomanRule, setInvalidRomanRule] = useState(false);
+
+  // cheat
+  const [isCheat, setIsCheat] = useState(false);
+
   // rule 8
   const [flagImages, setFlagImages] = useState([]);
   const [countries, setCountries] = useState([]);
@@ -51,10 +66,12 @@ const Password = () => {
   const [isAlreadyRule11, setIsAlreadyRule11] = useState(false);
 
   // rule 10
+  const [cheatBurn, setCheatBurn] = useState(false);
   const [isAlreadyRule10, setIsAlreadyRule10] = useState(false);
   const [isBurning, setIsBurning] = useState(false);
   const [isFirstBurn, setIsFirstBurn] = useState(false);
   const [burnInterval, setBurnInterval] = useState(null);
+  const [burnTimeOut, setBurnTimeOut] = useState(null);
 
   const textRef = useRef(text);
   useEffect(() => {
@@ -90,22 +107,33 @@ const Password = () => {
 
   // check apakah interval nya harus stop
   useEffect(() => {
-    if (isBurning && isStringAllFireEmoji(text)) {
+    if (!cheatBurn) {
+      let timeOut;
+      if (isBurning && isStringAllFireEmoji(text)) {
+        setIsBurning(false);
+        setIsFirstBurn(false);
+        console.log("all burn");
+        timeOut = setTimeout(() => {
+          setIsBurning(true);
+        }, intervalBurnByDifficulty[difficultyLevel].X);
+        setBurnTimeOut(timeOut);
+      } else if (isBurning && text.indexOf("🔥") === -1 && isFirstBurn) {
+        setIsBurning(false);
+        setIsFirstBurn(false);
+        console.log("stop burn");
+        timeOut = setTimeout(() => {
+          setIsBurning(true);
+        }, intervalBurnByDifficulty[difficultyLevel].X);
+      }
+      setBurnTimeOut(timeOut);
+    } else {
+      console.log("clear timeout");
       setIsBurning(false);
       setIsFirstBurn(false);
-      console.log("all burn");
-      setTimeout(() => {
-        setIsBurning(true);
-      }, intervalBurnByDifficulty[difficultyLevel].X);
-    } else if (isBurning && text.indexOf("🔥") === -1 && isFirstBurn) {
-      setIsBurning(false);
-      setIsFirstBurn(false);
-      console.log("stop burn");
-      setTimeout(() => {
-        setIsBurning(true);
-      }, intervalBurnByDifficulty[difficultyLevel].X);
+      clearTimeout(burnTimeOut);
+      clearInterval(burnInterval);
     }
-  }, [isBurning, text, isFirstBurn]);
+  }, [isBurning, text, isFirstBurn, cheatBurn]);
 
   // refresh button captcha on click
   const refreshCaptcha = async () => {
@@ -115,6 +143,7 @@ const Password = () => {
 
   // rule 14
   const [isAlreadyRule14, setIsAlreadyRule14] = useState(false);
+  const [isCheatWorm, setIsCheatWorm] = useState(false);
   const wormInterval = useRef(null);
 
   useEffect(() => {
@@ -136,6 +165,14 @@ const Password = () => {
       }
     };
   }, [isAlreadyRule14]);
+  
+  useEffect(() => {
+    if (isCheatWorm) {
+      console.log("clear interval worm");
+      clearInterval(wormInterval.current);
+      wormInterval.current = null;
+    }
+  }, [isCheatWorm]);
 
   // rule 15
   const [sacrificedLetters, setSacrificedLetters] = useState([]);
@@ -157,11 +194,23 @@ const Password = () => {
   useEffect(() => {
     if (text.trim().length > 0) {
       if (!gameOver) {
+        if (isContainCheat(text)) {
+          setIsCheat(true);
+        } else {
+          setIsCheat(false);
+        }
+
         checkRules(text);
       } else {
         console.log("GameOVER");
       }
     }
+    highlightInvalidCharacters(
+      text,
+      invalidNumberRule,
+      invalidRomanRule,
+      setHighlightedText
+    );
   }, [text, captchaImage]);
 
   // check password pemain
@@ -173,6 +222,7 @@ const Password = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          cheat: isCheat, // cheat
           text: textToCheck, // text
           difficulty: difficultyLevel, // difficulty
           countRevealedRules, // rules yang sudah terbuka
@@ -182,13 +232,44 @@ const Password = () => {
           sacrificedLetters, // rule 15
         }),
       });
-      const { results, countRevealedRules: newCount } = await response.json();
+      const {
+        text: newText,
+        results,
+        countRevealedRules: newCount,
+      } = await response.json();
       setCountRevealedRules(newCount);
       setRules(results);
       const newRevealedRules = results.map((rule) => rule.id);
       setRevealedRules((prevRevealedRules) => [
         ...new Set([...prevRevealedRules, ...newRevealedRules]),
       ]);
+
+      // cheat
+      if (isCheat) {
+        // cheat rule 10
+        setCheatBurn(true);
+        const tempText = deleteAllFireEmoji(newText);
+
+        // cheat rule 14
+        setIsCheatWorm(true);
+        
+
+        setText((prevText) => tempText);
+        setIsCheat(false);
+      }
+
+      // highlighter
+      const rule5 = results.find((rule) => rule.id === 5);
+      const rule17 = results.find((rule) => rule.id === 17);
+      const rule18 = results.find((rule) => rule.id === 18);
+      setInvalidNumberRule(
+        (rule5 && !rule5.isValid) ||
+          (rule17 && !rule17.isValid) ||
+          (rule18 && !rule18.isValid)
+      );
+
+      const rule9 = results.find((rule) => rule.id === 9);
+      setInvalidRomanRule(rule9 && !rule9.isValid);
 
       // rule 8 logic
       const rule8 = results.find((rule) => rule.id === 8);
@@ -237,7 +318,7 @@ const Password = () => {
         setText((prevText) => prevText.replace(/🥚/g, "🐔"));
         setTimeout(() => {
           setIsAlreadyRule14(true);
-        }, feedPaulByDifficulty[difficultyLevel].Y );
+        }, feedPaulByDifficulty[difficultyLevel].Y);
       }
 
       // rule 12 logic
@@ -293,7 +374,7 @@ const Password = () => {
             Welcome to Password Game
           </h1>
           <div className="text-white text-xl mb-4">
-            Password length: {text.length}
+            Password length: {text ? text.length : 0}
           </div>
           {/* <div className="text-white text-xl mb-4">Score: {score}</div> */}
           <div className="px-40 w-full max-w-5xl">
@@ -303,6 +384,10 @@ const Password = () => {
               className="w-full"
             />
           </div>
+          <div
+            className="mt-4 text-2xl text-white"
+            dangerouslySetInnerHTML={{ __html: highlightedText }}
+          ></div>
           {revealedRules.map((id) => {
             const rule = rules.find((r) => r.id === id);
             return (

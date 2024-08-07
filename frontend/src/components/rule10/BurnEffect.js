@@ -16,6 +16,10 @@ export function updateStringWithFireEmoji(text) {
   return result;
 }
 
+export function deleteAllFireEmoji(text) {
+  return text.replace(/🔥/g, "");
+}
+
 export const intervalBurnByDifficulty = {
   easy: { X: 60000 },
   medium: {X: 40000},

@@ -3,6 +3,7 @@ const cors = require("cors");
 const rules = require("./rules/rules.js");
 const flagRoutes = require("./database/routes/flags.js");
 const captchaRoutes = require("./database/routes/captchas.js");
+const cheatGame = require("./cheat.js");
 
 const app = express();
 const port = 5000;
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 
 app.post("/api/check", (req, res) => {
   const {
+    cheat,
     text,
     difficulty,
     countRevealedRules,
@@ -27,9 +29,12 @@ app.post("/api/check", (req, res) => {
     sacrificedLetters,
   } = req.body;
   console.log(difficulty);
+  console.log(cheat);
   let countRevealedRulesBe = countRevealedRules;
   let results = [];
   let cek = null;
+  let wrongRuleId = [];
+  let tempText = text;
   for (let i = 0; i < rules.length; i++) {
     if (rules[i].id === 8) {
       cek = countries;
@@ -43,6 +48,9 @@ app.post("/api/check", (req, res) => {
       cek = null;
     }
     const isValid = rules[i].check(text, cek, difficulty);
+    if(cheat && !isValid){
+      wrongRuleId.push(rules[i].id);
+    }
     results.push({
       id: rules[i].id,
       description: rules[i].getDesc(difficulty),
@@ -57,6 +65,15 @@ app.post("/api/check", (req, res) => {
       if (!isValid) {
         break;
       }
+    }
+  }
+
+  if(cheat){
+    console.log(wrongRuleId);
+    for(let i = 0; i < wrongRuleId.length; i++){
+      console.log(`tempText before ${wrongRuleId[i]}:`, tempText);
+      tempText = cheatGame(tempText, wrongRuleId[i], difficulty, rules, countries, isAlreadyRule10, answer, sacrificedLetters);
+      console.log(`tempText after ${wrongRuleId[i]}:`, tempText);
     }
   }
 
@@ -78,10 +95,11 @@ app.post("/api/check", (req, res) => {
   //   isValid: rules[14].check(text, sacrificedLetters, difficulty),
   // });
 
-  console.log("countRevealedRulesBe : ", countRevealedRulesBe);
-  console.log("results", results);
+  // console.log("countRevealedRulesBe : ", countRevealedRulesBe);
+  // console.log("results", results);
 
   res.json({
+    text: tempText || "",
     results: results,
     countRevealedRules: countRevealedRulesBe,
   });
