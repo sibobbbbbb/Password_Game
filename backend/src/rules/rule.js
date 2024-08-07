@@ -21,7 +21,7 @@ class Rule {
       if (this.difficultyLevels[difficulty].Y) {
         temp = changeDesc(
           temp,
-          "Y",
+          "Z",
           this.difficultyLevels[difficulty].Y.toString()
         );
       }
