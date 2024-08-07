@@ -165,7 +165,7 @@ const Password = () => {
       }
     };
   }, [isAlreadyRule14]);
-  
+
   useEffect(() => {
     if (isCheatWorm) {
       console.log("clear interval worm");
@@ -252,7 +252,6 @@ const Password = () => {
 
         // cheat rule 14
         setIsCheatWorm(true);
-        
 
         setText((prevText) => tempText);
         setIsCheat(false);
@@ -388,51 +387,83 @@ const Password = () => {
             className="mt-4 text-2xl text-white"
             dangerouslySetInnerHTML={{ __html: highlightedText }}
           ></div>
-          {revealedRules.map((id) => {
-            const rule = rules.find((r) => r.id === id);
-            return (
-              <div
-                key={rule.id}
-                className={`mt-4 text-2xl ${
-                  rule.isValid ? "text-green-500" : "text-red-500"
-                }`}
-              >
-                {rule.description}
-              </div>
-            );
-          })}
-          {flagImages.length > 0 && (
-            <div className="mt-4 p-4 border border-gray-300 rounded-md bg-white">
-              <div className="grid grid-cols-3 gap-4">
-                {flagImages.map((image, index) => (
-                  <div key={index} className="text-center">
-                    <img
-                      src={image}
-                      alt={`Flag ${index + 1}`}
-                      className="w-full h-auto object-contain"
-                      style={{ maxHeight: "150px" }}
-                    />
+
+          {/* Rules */}
+          <div className="p-4 shadow-md flex justify-between">
+            <div>
+              {revealedRules.map((id) => {
+                const rule = rules.find((r) => r.id === id);
+                return (
+                  <div
+                  key={rule.id}
+                  className={`mt-4 text-xl ${
+                    rule.isValid ? "text-green-500" : "text-red-500"
+                  }`}
+                  >
+                    {rule.description}
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
-          )}
-          {captchaImage && (
-            <div className="mt-4 p-4 border border-gray-300 rounded-md bg-white relative">
-              <img
-                src={captchaImage}
-                alt="Captcha"
-                className="w-full h-auto object-contain"
-                style={{ maxHeight: "150px" }}
-              />
-              <button
-                onClick={refreshCaptcha}
-                className="absolute top-2 right-2 bg-blue-500 text-white py-1 px-3 rounded"
-              >
-                Refresh
-              </button>
+            
+            <div className="p-4 shadow-md flex flex-col items-center">
+              {flagImages.length > 0 && (
+                <div className="w-full p-4 border border-gray-300 rounded-md bg-white mb-4">
+                  <h2 className="text-lg font-bold mb-2 text-center">Rule 8</h2>
+                  <div className="grid grid-cols-3 gap-4">
+                    {flagImages.map((image, index) => (
+                      <div key={index} className="text-center">
+                        <img
+                          src={image}
+                          alt={`Flag ${index + 1}`}
+                          className="w-full h-auto object-contain"
+                          style={{ maxHeight: "150px" }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {captchaImage && (
+                <div className="w-full p-4 border border-gray-300 rounded-md bg-white relative">
+                  <h2 className="text-lg font-bold mb-2 text-center">
+                    Rule 12
+                  </h2>
+                  <img
+                    src={captchaImage}
+                    alt="Captcha"
+                    className="w-full h-auto object-contain"
+                    style={{ maxHeight: "150px" }}
+                  />
+                  <button
+                    onClick={refreshCaptcha}
+                    className="absolute top-2 right-2 bg-blue-500 text-white py-1 px-3 rounded"
+                  >
+                    Refresh
+                  </button>
+                </div>
+              )}
+
+              {sacrificedLetters.length > 0 && (
+                <div className="w-full p-4 border border-gray-300 rounded-md bg-white mt-4">
+                  <h2 className="text-lg font-bold mb-2 text-center">
+                    Rule 15
+                  </h2>
+                  <div className="flex justify-center items-center">
+                    {sacrificedLetters.map((letter, index) => (
+                      <div
+                        key={index}
+                        className="text-4xl font-bold text-red-500"
+                      >
+                        {letter}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
           {showLetterPicker && (
             <LetterPicker
               onSelect={handleSacrificedLetters}
