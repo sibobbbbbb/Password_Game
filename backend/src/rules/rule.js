@@ -1,7 +1,4 @@
-function changeDesc(stringAsli, substringLama, substringBaru) {
-  const regex = new RegExp(substringLama, "g");
-  return stringAsli.replace(regex, substringBaru);
-}
+const changeDesc = require("./changeDesc");
 
 class Rule {
   constructor(id, description, func, difficultyLevels) {

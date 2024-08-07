@@ -7,7 +7,7 @@ const rules = [];
 const rulesDir = __dirname;
 
 fs.readdirSync(rulesDir).forEach(file => {
-    if (file !== 'rule.js' && file !== 'rules.js') { 
+    if (file !== 'rule.js' && file !== 'rules.js' && file !== 'changeDesc.js' && file !== 'isPrime.js') { 
         const rule = require(path.join(rulesDir, file));
         if (rule instanceof Rule) {
             rules.push(rule);
