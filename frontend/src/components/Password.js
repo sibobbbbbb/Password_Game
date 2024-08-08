@@ -21,6 +21,16 @@ const isContainCheat = (text) => {
   return regex.test(text);
 };
 
+const containsLetter = (words, letters) => {
+  let regexPattern = new RegExp("[" + letters.join("") + "]");
+  for (let i = 0; i < words.length; i++) {
+    if (!regexPattern.test(words[i])) {
+      return false;
+    }
+  }
+  return true;
+};
+
 const Password = () => {
   // password
   const [text, setText] = useState("");
@@ -75,6 +85,16 @@ const Password = () => {
   const [burnInterval, setBurnInterval] = useState(null);
   const [burnTimeOut, setBurnTimeOut] = useState(null);
 
+  useEffect(() => {
+    if(!isAlreadyRule10)
+    {
+      setIsBurning(false);
+      setIsFirstBurn(false);
+      clearInterval(burnInterval);
+      clearTimeout(burnTimeOut);
+    }
+  }, [text]);
+
   const textRef = useRef(text);
   useEffect(() => {
     textRef.current = text;
@@ -116,6 +136,7 @@ const Password = () => {
         setIsFirstBurn(false);
         console.log("all burn");
         timeOut = setTimeout(() => {
+          console.log("true dari 1");
           setIsBurning(true);
         }, intervalBurnByDifficulty[difficultyLevel].X);
         setBurnTimeOut(timeOut);
@@ -124,6 +145,7 @@ const Password = () => {
         setIsFirstBurn(false);
         console.log("stop burn");
         timeOut = setTimeout(() => {
+          console.log("true dari 2");
           setIsBurning(true);
         }, intervalBurnByDifficulty[difficultyLevel].X);
       }
@@ -243,6 +265,19 @@ const Password = () => {
       }
     }
   }, [text]);
+
+  // Check possible answers
+  useEffect(() => {
+    if (sacrificedLetters.length > 0 && countries.length > 0) {
+      const countryNames = countries.map((country) => country.toLowerCase());
+      console.log("masuk");
+      console.log(countryNames);
+      if (containsLetter(countryNames, sacrificedLetters)) {
+        setGameOver(true);
+        setIsWinner(false);
+      }
+    }
+  }, [sacrificedLetters, countries]);
 
   // play again
   const handlePlayAgain = () => {
@@ -370,6 +405,7 @@ const Password = () => {
       if (rule10 && !isAlreadyRule10) {
         setIsAlreadyRule10(true);
         setIsBurning(true);
+        console.log("true dari rule logic");
       }
 
       // paul logic (rule 11 && rule 14)
@@ -419,6 +455,12 @@ const Password = () => {
           openLetterPicker();
         }
       }
+
+      // win condition
+      if (rules.length == 20 && rules.every((rule) => rule.isValid)) {
+        setGameOver(true);
+        setIsWinner(true);
+      }
     } catch (error) {
       console.error("Error:", error);
     }
@@ -467,6 +509,10 @@ const Password = () => {
                 <div>
                   {revealedRules.map((id) => {
                     const rule = rules.find((r) => r.id === id);
+                    if (!rule) {
+                      console.error(`Rule with id ${id} not found`);
+                      return null;
+                    }
                     return (
                       <div
                         key={rule.id}
@@ -480,7 +526,9 @@ const Password = () => {
                   })}
                 </div>
 
+                {/* Images */}
                 <div className="p-4 shadow-md flex flex-col items-center">
+                  {/* Flag */}
                   {flagImages.length > 0 && (
                     <div className="w-full p-4 border border-gray-300 rounded-md bg-white mb-4">
                       <h2 className="text-lg font-bold mb-2 text-center">
@@ -501,6 +549,7 @@ const Password = () => {
                     </div>
                   )}
 
+                  {/* Captcha */}
                   {captchaImage && (
                     <div className="w-full p-4 border border-gray-300 rounded-md bg-white relative">
                       <h2 className="text-lg font-bold mb-2 text-center">
@@ -521,6 +570,7 @@ const Password = () => {
                     </div>
                   )}
 
+                  {/* Sacrificed */}
                   {sacrificedLetters.length > 0 && (
                     <div className="w-full p-4 border border-gray-300 rounded-md bg-white mt-4">
                       <h2 className="text-lg font-bold mb-2 text-center">
@@ -540,6 +590,8 @@ const Password = () => {
                   )}
                 </div>
               </div>
+
+              {/* Letter Picker Sacrificed*/}
               {showLetterPicker && (
                 <LetterPicker
                   onSelect={handleSacrificedLetters}
