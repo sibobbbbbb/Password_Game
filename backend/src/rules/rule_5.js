@@ -13,9 +13,9 @@ const rule_5 = new Rule(
     return sum === X;
   },
   {
-    easy: { X: 35 },
-    medium: { X: 25 },
-    hard: { X: 15 },
+    easy: { X: 25 },
+    medium: { X: 35 },
+    hard: { X: 45 },
   },
 );
 module.exports = rule_5;
