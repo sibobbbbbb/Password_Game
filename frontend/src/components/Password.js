@@ -22,11 +22,11 @@ const isContainCheat = (text) => {
 };
 
 const containsLetter = (words, letters) => {
-  let regexPattern = new RegExp("[" + letters.join("") + "]");
+  let regexPattern = new RegExp('[' + letters.join('') + ']', 'i');
   for (let i = 0; i < words.length; i++) {
-    if (!regexPattern.test(words[i])) {
-      return false;
-    }
+      if (!regexPattern.test(words[i])) {
+          return false;
+      }
   }
   return true;
 };
@@ -86,8 +86,7 @@ const Password = () => {
   const [burnTimeOut, setBurnTimeOut] = useState(null);
 
   useEffect(() => {
-    if(!isAlreadyRule10)
-    {
+    if (!isAlreadyRule10) {
       setIsBurning(false);
       setIsFirstBurn(false);
       clearInterval(burnInterval);
@@ -265,14 +264,13 @@ const Password = () => {
       }
     }
   }, [text]);
-
+  
   // Check possible answers
   useEffect(() => {
-    if (sacrificedLetters.length > 0 && countries.length > 0) {
+    if (sacrificedLetters.length > 0) {
       const countryNames = countries.map((country) => country.toLowerCase());
-      console.log("masuk");
-      console.log(countryNames);
-      if (containsLetter(countryNames, sacrificedLetters)) {
+      const rule16String = ["I want IRK", "I need IRK", "I love IRK"];
+      if (containsLetter(countryNames, sacrificedLetters) || containsLetter(rule16String, sacrificedLetters)) {
         setGameOver(true);
         setIsWinner(false);
       }
