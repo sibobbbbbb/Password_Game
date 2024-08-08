@@ -156,8 +156,9 @@ const Password = () => {
   }, [handleGameOverRule14]);
 
   useEffect(() => {
-    if (isAlreadyRule14 && wormInterval.current === null) {
+    if (!isCheatWorm && isAlreadyRule14 && wormInterval.current === null) {
       wormInterval.current = setInterval(() => {
+        console.log("GO worm");
         checkWorms(
           textRef.current,
           setGameOver,
@@ -224,19 +225,21 @@ const Password = () => {
 
   // game over
   useEffect(() => {
-    if (isAlreadyRule11 && !handleGameOverRule14) {
-      const regex = /🥚/g;
-      if (!regex.test(text)) {
-        console.log("ini rule 11");
-        setGameOver(true);
-        setIsWinner(false);
-      }
-    } else if (handleGameOverRule14) {
-      const regex = /🐔/g;
-      if (!regex.test(text)) {
-        console.log("ini rule 14");
-        setGameOver(true);
-        setIsWinner(false);
+    if (!isCheatWorm) {
+      if (isAlreadyRule11 && !handleGameOverRule14) {
+        const regex = /🥚/g;
+        if (!regex.test(text)) {
+          console.log("ini rule 11");
+          setGameOver(true);
+          setIsWinner(false);
+        }
+      } else if (handleGameOverRule14) {
+        const regex = /🐔/g;
+        if (!regex.test(text)) {
+          console.log("ini rule 14");
+          setGameOver(true);
+          setIsWinner(false);
+        }
       }
     }
   }, [text]);
