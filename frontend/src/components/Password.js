@@ -13,6 +13,7 @@ import {
 } from "./rule15/LetterPicker";
 import calculateScore from "./score/CalculateScore";
 import StartScreen from "./StartScreen";
+import GameOverScreen from "./GameOverScreen";
 import { highlightInvalidCharacters } from "./Highlighter";
 
 const isContainCheat = (text) => {
@@ -28,6 +29,7 @@ const Password = () => {
   // GameState
   const [showStartScreen, setShowStartScreen] = useState(true);
   const [gameOver, setGameOver] = useState(false);
+  const [isWinner, setIsWinner] = useState(false);
 
   // rules logic
   const [rules, setRules] = useState([]);
@@ -36,7 +38,7 @@ const Password = () => {
 
   // Calculate points
   const [score, setScore] = useState(0);
-  const [startTime] = useState(Date.now());
+  const [startTime, setStartTime] = useState(null);
 
   useEffect(() => {
     if (!gameOver && revealedRules.length > 0) {
@@ -143,8 +145,15 @@ const Password = () => {
 
   // rule 14
   const [isAlreadyRule14, setIsAlreadyRule14] = useState(false);
+  const [handleGameOverRule14, setHandleGameOverRule14] = useState(false);
   const [isCheatWorm, setIsCheatWorm] = useState(false);
   const wormInterval = useRef(null);
+
+  useEffect(() => {
+    if (handleGameOverRule14) {
+      setText((prevText) => prevText.replace(/🥚/g, "🐔"));
+    }
+  }, [handleGameOverRule14]);
 
   useEffect(() => {
     if (isAlreadyRule14 && wormInterval.current === null) {
@@ -212,6 +221,61 @@ const Password = () => {
       setHighlightedText
     );
   }, [text, captchaImage]);
+
+  // game over
+  useEffect(() => {
+    if (isAlreadyRule11 && !handleGameOverRule14) {
+      const regex = /🥚/g;
+      if (!regex.test(text)) {
+        console.log("ini rule 11");
+        setGameOver(true);
+        setIsWinner(false);
+      }
+    } else if (handleGameOverRule14) {
+      const regex = /🐔/g;
+      if (!regex.test(text)) {
+        console.log("ini rule 14");
+        setGameOver(true);
+        setIsWinner(false);
+      }
+    }
+  }, [text]);
+
+  // play again
+  const handlePlayAgain = () => {
+    clearInterval(burnInterval);
+    clearInterval(wormInterval.current);
+    clearTimeout(burnTimeOut);
+    setShowStartScreen(true);
+    setText("");
+    setGameOver(false);
+    setIsWinner(false);
+    setScore(0);
+    setRevealedRules([]);
+    setCountRevealedRules(0);
+    setRules([]);
+    setHighlightedText("");
+    setInvalidNumberRule(false);
+    setInvalidRomanRule(false);
+    setIsCheat(false);
+    setFlagImages([]);
+    setCountries([]);
+    setCaptchaImage(null);
+    setAnswer("");
+    setIsAlreadyRule11(false);
+    setCheatBurn(false);
+    setIsAlreadyRule10(false);
+    setIsBurning(false);
+    setIsFirstBurn(false);
+    setBurnInterval(null);
+    setBurnTimeOut(null);
+    setIsAlreadyRule14(false);
+    setIsCheatWorm(false);
+    setSacrificedLetters([]);
+    setShowLetterPicker(false);
+    setStartTime(null);
+    setHandleGameOverRule14(false);
+  };
 
   // check password pemain
   const checkRules = async (textToCheck) => {
@@ -311,10 +375,9 @@ const Password = () => {
         setText((prevText) => prevText + "🥚");
         setIsAlreadyRule11(true);
       }
-
       const rule14 = results.find((rule) => rule.id === 14);
       if (rule14 && rule14.isValid && !isAlreadyRule14) {
-        setText((prevText) => prevText.replace(/🥚/g, "🐔"));
+        setHandleGameOverRule14(true);
         setTimeout(() => {
           setIsAlreadyRule14(true);
         }, feedPaulByDifficulty[difficultyLevel].Y);
@@ -360,118 +423,130 @@ const Password = () => {
 
   return (
     <div className="bg-[#022B42] min-h-screen flex flex-col items-center justify-center">
-      {showStartScreen ? (
-        <StartScreen
-          onStart={(selectedDifficulty) => {
-            setDifficultyLevel(selectedDifficulty);
-            setShowStartScreen(false);
-          }}
+      {gameOver ? (
+        <GameOverScreen
+          isWinner={isWinner}
+          score={score}
+          onPlayAgain={handlePlayAgain}
         />
       ) : (
         <>
-          <h1 className="py-5 text-6xl font-bold text-white text-center">
-            Welcome to Password Game
-          </h1>
-          <div className="text-white text-xl mb-4">
-            Password length: {text ? text.length : 0}
-          </div>
-          {/* <div className="text-white text-xl mb-4">Score: {score}</div> */}
-          <div className="px-40 w-full max-w-5xl">
-            <TextBox
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="w-full"
+          {showStartScreen ? (
+            <StartScreen
+              onStart={(selectedDifficulty) => {
+                setDifficultyLevel(selectedDifficulty);
+                setShowStartScreen(false);
+                setStartTime(Date.now());
+              }}
             />
-          </div>
-          <div
-            className="mt-4 text-2xl text-white"
-            dangerouslySetInnerHTML={{ __html: highlightedText }}
-          ></div>
+          ) : (
+            <>
+              <h1 className="py-5 text-6xl font-bold text-white text-center">
+                Welcome to Password Game
+              </h1>
+              <div className="text-white text-xl mb-4">
+                Password length: {text ? text.length : 0}
+              </div>
+              <div className="px-40 w-full max-w-5xl">
+                <TextBox
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div
+                className="mt-4 text-2xl text-white"
+                dangerouslySetInnerHTML={{ __html: highlightedText }}
+              ></div>
 
-          {/* Rules */}
-          <div className="p-4 shadow-md flex justify-between">
-            <div>
-              {revealedRules.map((id) => {
-                const rule = rules.find((r) => r.id === id);
-                return (
-                  <div
-                  key={rule.id}
-                  className={`mt-4 text-xl ${
-                    rule.isValid ? "text-green-500" : "text-red-500"
-                  }`}
-                  >
-                    {rule.description}
-                  </div>
-                );
-              })}
-            </div>
-            
-            <div className="p-4 shadow-md flex flex-col items-center">
-              {flagImages.length > 0 && (
-                <div className="w-full p-4 border border-gray-300 rounded-md bg-white mb-4">
-                  <h2 className="text-lg font-bold mb-2 text-center">Rule 8</h2>
-                  <div className="grid grid-cols-3 gap-4">
-                    {flagImages.map((image, index) => (
-                      <div key={index} className="text-center">
-                        <img
-                          src={image}
-                          alt={`Flag ${index + 1}`}
-                          className="w-full h-auto object-contain"
-                          style={{ maxHeight: "150px" }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {captchaImage && (
-                <div className="w-full p-4 border border-gray-300 rounded-md bg-white relative">
-                  <h2 className="text-lg font-bold mb-2 text-center">
-                    Rule 12
-                  </h2>
-                  <img
-                    src={captchaImage}
-                    alt="Captcha"
-                    className="w-full h-auto object-contain"
-                    style={{ maxHeight: "150px" }}
-                  />
-                  <button
-                    onClick={refreshCaptcha}
-                    className="absolute top-2 right-2 bg-blue-500 text-white py-1 px-3 rounded"
-                  >
-                    Refresh
-                  </button>
-                </div>
-              )}
-
-              {sacrificedLetters.length > 0 && (
-                <div className="w-full p-4 border border-gray-300 rounded-md bg-white mt-4">
-                  <h2 className="text-lg font-bold mb-2 text-center">
-                    Rule 15
-                  </h2>
-                  <div className="flex justify-center items-center">
-                    {sacrificedLetters.map((letter, index) => (
+              {/* Rules */}
+              <div className="p-4 shadow-md flex justify-between">
+                <div>
+                  {revealedRules.map((id) => {
+                    const rule = rules.find((r) => r.id === id);
+                    return (
                       <div
-                        key={index}
-                        className="text-4xl font-bold text-red-500"
+                        key={rule.id}
+                        className={`mt-4 text-xl ${
+                          rule.isValid ? "text-green-500" : "text-red-500"
+                        }`}
                       >
-                        {letter}
+                        {rule.description}
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
+
+                <div className="p-4 shadow-md flex flex-col items-center">
+                  {flagImages.length > 0 && (
+                    <div className="w-full p-4 border border-gray-300 rounded-md bg-white mb-4">
+                      <h2 className="text-lg font-bold mb-2 text-center">
+                        Rule 8
+                      </h2>
+                      <div className="grid grid-cols-3 gap-4">
+                        {flagImages.map((image, index) => (
+                          <div key={index} className="text-center">
+                            <img
+                              src={image}
+                              alt={`Flag ${index + 1}`}
+                              className="w-full h-auto object-contain"
+                              style={{ maxHeight: "150px" }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {captchaImage && (
+                    <div className="w-full p-4 border border-gray-300 rounded-md bg-white relative">
+                      <h2 className="text-lg font-bold mb-2 text-center">
+                        Rule 12
+                      </h2>
+                      <img
+                        src={captchaImage}
+                        alt="Captcha"
+                        className="w-full h-auto object-contain"
+                        style={{ maxHeight: "150px" }}
+                      />
+                      <button
+                        onClick={refreshCaptcha}
+                        className="absolute top-2 right-2 bg-blue-500 text-white py-1 px-3 rounded"
+                      >
+                        Refresh
+                      </button>
+                    </div>
+                  )}
+
+                  {sacrificedLetters.length > 0 && (
+                    <div className="w-full p-4 border border-gray-300 rounded-md bg-white mt-4">
+                      <h2 className="text-lg font-bold mb-2 text-center">
+                        Rule 15
+                      </h2>
+                      <div className="flex justify-center items-center">
+                        {sacrificedLetters.map((letter, index) => (
+                          <div
+                            key={index}
+                            className="text-4xl font-bold text-red-500"
+                          >
+                            {letter}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {showLetterPicker && (
+                <LetterPicker
+                  onSelect={handleSacrificedLetters}
+                  maxLetters={nSacredLettersByDifficulty[difficultyLevel].X}
+                  onClose={closeLetterPicker}
+                />
               )}
-            </div>
-          </div>
-          {showLetterPicker && (
-            <LetterPicker
-              onSelect={handleSacrificedLetters}
-              maxLetters={nSacredLettersByDifficulty[difficultyLevel].X}
-              onClose={closeLetterPicker}
-            />
+              <div className="pt-10"></div>
+            </>
           )}
-          <div className="pt-10"></div>
         </>
       )}
     </div>
