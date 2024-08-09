@@ -9,8 +9,6 @@ const rule_9 = new Rule(
     for (const romanNumeral of romanNumerals) {
       const regex = new RegExp(romanNumeral, "g");
       const count = (text.match(regex) || []).length;
-      console.log("roman : ", romanNumeral);
-      console.log("count : ", count);
       if (count > 0) {
         switch (romanNumeral) {
           case "I":
@@ -37,7 +35,6 @@ const rule_9 = new Rule(
         }
       }
     }
-    console.log(result);
     return result === X;
   },
   {

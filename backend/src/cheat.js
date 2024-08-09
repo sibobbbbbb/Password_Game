@@ -172,7 +172,7 @@ const cheat = (
         length++;
       }
 
-      return changeDesc(text, "cheat", "");
+      return tempText;
     case 20:
       const currentTime = new Date().toLocaleTimeString("en-GB", {
         hour: "2-digit",

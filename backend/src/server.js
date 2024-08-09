@@ -95,8 +95,8 @@ app.post("/api/check", (req, res) => {
   //   isValid: rules[14].check(text, sacrificedLetters, difficulty),
   // });
 
-  // console.log("countRevealedRulesBe : ", countRevealedRulesBe);
-  // console.log("results", results);
+  console.log("countRevealedRulesBe : ", countRevealedRulesBe);
+  console.log("results", results);
 
   res.json({
     text: tempText || "",

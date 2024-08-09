@@ -5,6 +5,8 @@ const rule_20 = new Rule(
   "Rule 20 - Your password must include the current time",
   (text) => {
     const currentTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    console.log(currentTime);
+    console.log(text);
     return text.includes(currentTime);
   }, // ex : 10:30
   null,
