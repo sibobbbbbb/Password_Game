@@ -1,8 +1,0 @@
-[build]
-  frontend = { builder = "DOCKERFILE", dockerfile = "frontend/Dockerfile" }
-  backend = { builder = "DOCKERFILE", dockerfile = "backend/Dockerfile" }
-
-[deploy]
-  # Tentukan service utama jika diperlukan, misalnya backend sebagai entry point
-  startCommand = "docker-compose up"
-  runtime = "DOCKER"
