@@ -1,0 +1,13 @@
+[build.backend]
+  builder = "DOCKERFILE"
+  dockerfile = "backend/Dockerfile"
+  context = "backend"
+
+[build.frontend]
+  builder = "DOCKERFILE"
+  dockerfile = "frontend/Dockerfile"
+  context = "frontend"
+
+[deploy]
+  runtime = "V2"
+  
