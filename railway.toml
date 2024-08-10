@@ -1,5 +1,10 @@
-[build]
+[build.backend]
 builder = "DOCKERFILE"
+dockerfile = "./backend/Dockerfile"
+
+[build.frontend]
+builder = "DOCKERFILE"
+dockerfile = "./frontend/Dockerfile"
 
 [deploy]
 runtime = "V2"
