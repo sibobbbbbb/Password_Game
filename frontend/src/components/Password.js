@@ -102,25 +102,20 @@ const Password = () => {
   // interval burning untuk rule 10
   useEffect(() => {
     if (isBurning && burnInterval == null) {
-      console.log("ini buat interval nya");
       const interval = setInterval(() => {
-        console.log("ini dari interval");
         setText((prevText) => updateStringWithFireEmoji(prevText));
         if (!isFirstBurn) {
-          console.log("ini dari interval first burn");
           setIsFirstBurn(true);
         }
       }, 1000);
       setBurnInterval(interval);
     } else if (burnInterval) {
-      console.log("ini buat clear interval nya");
       clearInterval(burnInterval);
       setBurnInterval(null);
     }
 
     return () => {
       if (burnInterval) {
-        console.log("ini buat clear interval nya dari return");
         clearInterval(burnInterval);
       }
     };
@@ -133,24 +128,19 @@ const Password = () => {
       if (isBurning && isStringAllFireEmoji(text)) {
         setIsBurning(false);
         setIsFirstBurn(false);
-        console.log("all burn");
         timeOut = setTimeout(() => {
-          console.log("true dari 1");
           setIsBurning(true);
         }, intervalBurnByDifficulty[difficultyLevel].X);
         setBurnTimeOut(timeOut);
       } else if (isBurning && text.indexOf("🔥") === -1 && isFirstBurn) {
         setIsBurning(false);
         setIsFirstBurn(false);
-        console.log("stop burn");
         timeOut = setTimeout(() => {
-          console.log("true dari 2");
           setIsBurning(true);
         }, intervalBurnByDifficulty[difficultyLevel].X);
       }
       setBurnTimeOut(timeOut);
     } else {
-      console.log("clear timeout");
       setIsBurning(false);
       setIsFirstBurn(false);
       clearTimeout(burnTimeOut);
@@ -179,7 +169,6 @@ const Password = () => {
   useEffect(() => {
     if (!isCheatWorm && isAlreadyRule14 && wormInterval.current === null) {
       wormInterval.current = setInterval(() => {
-        console.log("GO worm");
         checkWorms(
           textRef.current,
           setGameOver,
@@ -199,7 +188,6 @@ const Password = () => {
 
   useEffect(() => {
     if (isCheatWorm) {
-      console.log("clear interval worm");
       clearInterval(wormInterval.current);
       wormInterval.current = null;
     }
@@ -233,7 +221,6 @@ const Password = () => {
 
         checkRules(text);
       } else {
-        console.log("GameOVER");
       }
     }
     highlightInvalidCharacters(
@@ -250,14 +237,12 @@ const Password = () => {
       if (isAlreadyRule11 && !handleGameOverRule14) {
         const regex = /🥚/g;
         if (!regex.test(text)) {
-          console.log("ini rule 11");
           setGameOver(true);
           setIsWinner(false);
         }
       } else if (handleGameOverRule14) {
         const regex = /🐔/g;
         if (!regex.test(text)) {
-          console.log("ini rule 14");
           setGameOver(true);
           setIsWinner(false);
         }
@@ -316,7 +301,7 @@ const Password = () => {
   // check password pemain
   const checkRules = async (textToCheck) => {
     try {
-      const response = await fetch("http://localhost:5000/api/check", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/check`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -374,8 +359,8 @@ const Password = () => {
       const rule8 = results.find((rule) => rule.id === 8);
       if (rule8 && flagImages.length === 0) {
         const flagDataResponse = await fetch(
-          "http://localhost:5000/api/flags/random"
-        );
+          `${process.env.REACT_APP_BACKEND_URL}/api/flags/random`
+        );              
         if (flagDataResponse.ok) {
           const flags = await flagDataResponse.json();
           const countries = flags.map((flag) => flag.country);
@@ -403,7 +388,6 @@ const Password = () => {
       if (rule10 && !isAlreadyRule10) {
         setIsAlreadyRule10(true);
         setIsBurning(true);
-        console.log("true dari rule logic");
       }
 
       // paul logic (rule 11 && rule 14)
@@ -424,8 +408,8 @@ const Password = () => {
       const rule12 = results.find((rule) => rule.id === 12);
       if (rule12 && captchaImage === null) {
         const captchaDataResponse = await fetch(
-          "http://localhost:5000/api/captchas/random"
-        );
+          `${process.env.REACT_APP_BACKEND_URL}/api/captchas/random`
+        );        
         if (captchaDataResponse.ok) {
           const captchas = await captchaDataResponse.json();
           setAnswer(captchas.answer);

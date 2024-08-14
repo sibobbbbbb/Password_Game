@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Flag = require('../models/Flag');
 
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+
 router.get('/random', async (req, res) => {
   try {
     const flags = await Flag.findAll({
@@ -12,7 +14,7 @@ router.get('/random', async (req, res) => {
     const responseFlags = selectedFlags.map(flag => ({
       id: flag.id,
       country: flag.country,
-      imageUrl: `http://localhost:5000/api/flags/image/${flag.id}`,
+      imageUrl: `${BASE_URL}/api/flags/image/${flag.id}`,
     }));
 
     res.json(responseFlags);

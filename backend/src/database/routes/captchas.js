@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Captcha = require('../models/Captcha');
 
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+
 router.get('/random', async (req, res) => {
   try {
     const count = await Captcha.count();
@@ -12,7 +14,7 @@ router.get('/random', async (req, res) => {
       const captcha = {
         id: randomCaptcha.id,
         answer: randomCaptcha.answer,
-        imageUrl: `http://localhost:5000/api/captchas/image/${randomCaptcha.id}`,
+        imageUrl: `${BASE_URL}/api/captchas/image/${randomCaptcha.id}`,
       };
       res.json(captcha);
     } else {

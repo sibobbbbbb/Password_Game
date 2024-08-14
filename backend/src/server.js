@@ -4,9 +4,10 @@ const rules = require("./rules/rules.js");
 const flagRoutes = require("./database/routes/flags.js");
 const captchaRoutes = require("./database/routes/captchas.js");
 const cheatGame = require("./cheat.js");
+require('dotenv').config();
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
@@ -77,24 +78,6 @@ app.post("/api/check", (req, res) => {
     }
   }
 
-  // results.push({
-  //   id: 10,
-  //   description: rules[9].getDesc(difficulty),
-  //   isValid: rules[9].check(text, isAlreadyRule10, difficulty),
-  // });
-  // console.log("results", results);
-  // results.push({
-  //   id: 14,
-  //   description: rules[13].getDesc(difficulty),
-  //   isValid: rules[13].check(text, null, difficulty),
-  // });
-  // console.log("results", results);
-  // results.push({
-  //   id: 15,
-  //   description: rules[14].getDesc(difficulty),
-  //   isValid: rules[14].check(text, sacrificedLetters, difficulty),
-  // });
-
   console.log("countRevealedRulesBe : ", countRevealedRulesBe);
   console.log("results", results);
 
@@ -107,4 +90,5 @@ app.post("/api/check", (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+  console.log(`Port from environment: ${process.env.PORT}`);
 });
