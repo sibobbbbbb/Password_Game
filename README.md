@@ -81,8 +81,8 @@ Saya memilih menggunakan regex (regular expressions) pada permainan ini karena r
 
 1. **Clone Repository**:
    ```bash
-   git clone https://github.com/username/password-validation-game.git
-   cd password-validation-game
+   git clone https://github.com/sibobbbbbb/Password_Game.git
+   cd Password_Game
 
 2. **Build dan Jalankan Aplikasi**:
    ```bash
