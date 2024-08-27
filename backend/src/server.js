@@ -3,6 +3,7 @@ const cors = require("cors");
 const rules = require("./rules/rules.js");
 const flagRoutes = require("./database/routes/flags.js");
 const captchaRoutes = require("./database/routes/captchas.js");
+const scoreRoutes = require("./database/routes/score.js");
 const cheatGame = require("./cheat.js");
 require('dotenv').config();
 
@@ -13,9 +14,10 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/flags", flagRoutes);
 app.use("/api/captchas", captchaRoutes);
+app.use('/api/score', scoreRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Welcome to the image upload service!");
+  res.send("test");
 });
 
 app.post("/api/check", (req, res) => {

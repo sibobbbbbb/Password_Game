@@ -1,6 +1,7 @@
 const sequelize = require('./config/database');
 const loadFlagImagesToDatabase= require('./utils/FlagToDatabase');
 const loadCaptchasImagesToDatabase = require('./utils/CaptchaToDatabase');
+const syncScoreTable = require('./utils/ScoreSynchronized');
 
 loadFlagImagesToDatabase().then(() => {
   console.log('Images have been loaded into the database.');
@@ -15,6 +16,13 @@ loadCaptchasImagesToDatabase()
   .catch((error) => {
     console.error("Error loading captchas into the database:", error);
   });
+
+syncScoreTable().then(() => {
+  console.log('Score table synchronized');
+}
+).catch((error) => {
+  console.error('Error synchronizing Score table:', error);
+});
 
 const initDatabase = async () => {
   try {
