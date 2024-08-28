@@ -24,37 +24,71 @@ Password Game adalah sebuah aplikasi web interaktif di mana pemain harus membuat
 
 ```plaintext
 Password_Game/
-│ 
 ├── backend/
-│ ├── src/
-│ │ ├── server.js
-│ │ ├── database.js
-│ │ └── rules/
-│ │ ├── rule_1.js
-│ │ ├── rule_20.js
-│ │ └── ...
-│ ├── package.json
-│ ├── Dockerfile
-│ └── ...
-│
+│   ├── src/
+│   │   ├── database/
+│   │   │   ├── config/
+│   │   │   │   └── database.js        
+│   │   │   ├── images/
+│   │   │   │   ├── captchas/              
+│   │   │   │   └── flags/                
+│   │   │   ├── models/
+│   │   │   │   ├── Captcha.js        
+│   │   │   │   ├── Flag.js             
+│   │   │   │   └── Score.js               
+│   │   │   ├── routes/
+│   │   │   │   ├── captchas.js          
+│   │   │   │   ├── flags.js               
+│   │   │   │   └── score.js             
+│   │   │   ├── utils/
+│   │   │   │   ├── CaptchaToDatabase.js   
+│   │   │   │   ├── FlagToDatabase.js     
+│   │   │   │   ├── ScoreSynchronized.js  
+│   │   │   └── initDatabase.js   
+│   │   ├── rules/
+│   │   │   ├── changeDesc.js
+│   │   │   ├── isPrime.js 
+│   │   │   ├── rules.js             
+│   │   │   └── ...
+│   │   ├── cheat.js        
+│   │   └── server.js                  
+│   ├── package.json
+│   ├── Dockerfile
+│   └── ...
 ├── frontend/
-│ ├── src/
-│ │ ├── components/
-│ │ ├── App.js
-│ │ ├── index.js
-│ │ └── ...
-│ ├── public/
-│ ├── package.json
-│ ├── Dockerfile
-│ └── ...
-│
+│   ├── build/                         
+│   ├── public/              
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── rule10/
+│   │   │   │   └── BurnEffect.js     
+│   │   │   ├── rule14/
+│   │   │   │   └── ClearWorm.js      
+│   │   │   ├── rule15/
+│   │   │   │   └── LetterPicker.js    
+│   │   │   ├── score/
+│   │   │   │   ├── CalculateScore.j
+│   │   │   │   ├── Button.js         
+│   │   │   │   ├── GameOverScreen.js 
+│   │   │   │   ├── Highlighter.js     
+│   │   │   │   ├── Leaderboard.js  
+│   │   │   │   ├── Password.js        
+│   │   │   │   ├── StartScreen.js    
+│   │   │   │   ├── Status.js        
+│   │   │   │   └── TextBox.js      
+│   │   ├── App.css                  
+│   │   ├── App.js       
+│   │   ├── App.test.js          
+│   │   └── index.js           
+│   ├── package.json
+│   ├── Dockerfile
+│   └── ...
 ├── images/
-│ ├── tampilan-game-over.png
-│ ├── tampilan-inGame.png
-│ ├── tampilan-utama.png
-│
-├── docker-compose.yml
-└── README.md
+│   ├── tampilan-game-over.png       
+│   ├── tampilan-inGame.png         
+│   └── tampilan-utama.png             
+├── docker-compose.yml               
+└── README.md                         
 ```
 - **Backend (`backend/`)**: Berisi seluruh kode untuk server, termasuk API untuk komunikasi dengan frontend dan database, serta file rule untuk validasi password.
 - **Frontend (`frontend/`)**: Berisi seluruh kode untuk tampilan aplikasi dan logika yang berjalan di sisi klien.
